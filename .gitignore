@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+logs/
+sandbox/
+workflows/
+.vscode/
+.idea/
+*.egg-info/
+dist/
+build/
+*.db
+.DS_Store
+static/uploads/
+git-installer.exe

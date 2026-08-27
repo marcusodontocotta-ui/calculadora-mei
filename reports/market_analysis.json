@@ -1,0 +1,1062 @@
+{
+  "timestamp": "2026-08-26T22:24:20.637693",
+  "candidates": [
+    {
+      "title": "Scanner de Notas Fiscais (Foto-Fatura -> Planilha)",
+      "description": "App mobile que fotografa notas fiscais/faturas e usa OCR + IA para extrair dados (fornecedor, valor, data, categoria). Exporta para Excel/Google Sheets. Ideal para pequenos lojistas, MEIs e pessoas que querem controle financeiro pessoal. O mercado brasileiro tem 22 milhoes de MEIs e alta demanda por simplificacao fiscal.",
+      "context": {
+        "mercado": "22M+ MEIs no Brasil, faturamento estimado do mercado de apps financeiros: R$ 2.8B/ano (Statista)",
+        "concorrencia": "Foto-fatura tem versao gratuita limitada; Scanner Pro e pago; nenhuma solucao dominante para MEIs",
+        "modelo_receita": "Freemium: 10 fotos/mes gratis, R$ 19.90/mes para ilimitado + exportacao",
+        "complexidade": "Baixa - OCR (Tesseract/cloud), backend simples, sem infra complexa",
+        "tempo_desenvolvimento": "4-6 semanas (MVP funcional)",
+        "tecnologias": "React Native ou Flutter, Python/Node.js backend, OCR (Tesseract ou API cloud), SQLite/local DB",
+        "diferenciais": "Foco em MEIs brasileiros, categorizacao automatica por CFOP, integracao com planilhas",
+        "risco": "Baixo - mercado validado, tecnologia madura, demanda real"
+      },
+      "constraints": [
+        "Deve funcionar offline (ocr local)",
+        "Compliance com LGPD (dados financeiros)",
+        "Suporte a NF-e, NFC-e e notas manuais",
+        "Exportacao para Excel e Google Sheets"
+      ],
+      "priority": 9
+    },
+    {
+      "title": "Calculadora de MEI com Alertas",
+      "description": "App/web que calcula automaticamente impostos do MEI (DAS), prazos de pagamento, lucro real vs presumido, e envia alertas antes dos vencimentos. Inclui dashboard simples de faturamento mensal. Pode ser estendido para emitir NF-e.",
+      "context": {
+        "mercado": "22M de MEIs, muitos sem assessoria contabil, pagam multas por atraso",
+        "concorrencia": "Sebrae tem simulador web; apps existentes sao pagos ou complexos",
+        "modelo_receita": "R$ 9.90/mes ou R$ 89.90/ano",
+        "complexidade": "Muito baixa - calculos matematicos + notificacoes push",
+        "tempo_desenvolvimento": "2-3 semanas (MVP)",
+        "tecnologias": "Flutter/React Native, backend serverless (Supabase/Firebase)",
+        "diferenciais": "Alertas proativos, simulacao de cenarios, linguagem simples",
+        "risco": "Muito baixo - calculos baseados em legislacao publica"
+      },
+      "constraints": [
+        "Calculos devem ser precisos conforme legislacao vigente",
+        "Notificacoes push confiaveis",
+        "Interface extremamente simples (MEIs nao sao tech-savvy)"
+      ],
+      "priority": 8
+    },
+    {
+      "title": "Micro-journaling para Ansiedade",
+      "description": "App de journaling estruturado com prompts guiados de 2 minutos. Mood tracking diario, padroes identificados por IA, lembretes suaves. Mercado de saude mental cresce 20% ao ano. Semanalmente gera insights.",
+      "context": {
+        "mercado": "Mercado global de apps de saude mental: $6.2B em 2025, CAGR 15.9%",
+        "concorrencia": "Daylio e popular mas generico; Finch e para habitos; nenhum foca em ansiedade com prompts",
+        "modelo_receita": "Freemium: 3 prompts/semana gratis, R$ 14.90/mes para ilimitado",
+        "complexidade": "Baixa - prompts estaticos + mood tracker + notificacoes",
+        "tempo_desenvolvimento": "3-4 semanas",
+        "tecnologias": "Flutter, Supabase, IA para insights (OpenAI API)",
+        "diferenciais": "Prompts baseados em TCC, modo offline, sem gamificacao excessiva",
+        "risco": "Medio - mercado competitivo, retencao pode ser desafiadora"
+      },
+      "constraints": [
+        "Prompts devem ser validados por profissionais de saude mental",
+        "Dados sensiveis - LGPD rigorosa",
+        "Nao pode substituir terapia - disclaimer obrigatorio"
+      ],
+      "priority": 7
+    },
+    {
+      "title": "Rastreador de Ruido do Bairro",
+      "description": "App crowdsourced que permite moradores documentarem niveis de ruido com medicao do microfone + geolocalizacao. Gera relatorios para condominios e prefeituras. Zero concorrencia, mercado inexplorado.",
+      "context": {
+        "mercado": "Reclamacoes por ruido crescem 30% ao ano em SP; 40% dos brasileiros reportam problemas",
+        "concorrencia": "Zero apps especificos no Brasil; SoundPrint existe nos EUA mas nao aqui",
+        "modelo_receita": "Freemium + dados agregados para imobiliarias/prefeituras (B2B)",
+        "complexidade": "Baixa - microfone + GPS + backend simples",
+        "tempo_desenvolvimento": "3-5 semanas",
+        "tecnologias": "Flutter, backend Python, SQLite, API de mapas",
+        "diferenciais": "Crowdsourced, relatorios PDF, dados para politicas publicas",
+        "risco": "Medio - adocao depende de massa critica de usuarios"
+      },
+      "constraints": [
+        "Precisa de permissao de microfone",
+        "Medicao calibrada (varia por dispositivo)",
+        "LGPD - dados de localizacao sao sensiveis"
+      ],
+      "priority": 6
+    },
+    {
+      "title": "Planejador de Refeicoes com Restricoes Alimentares",
+      "description": "App que monta cardapios semanais considerando restricoes (gluten, lactose, vegetariano, etc.), gera lista de compras e controle orcamento. Mercado de bem-estar cresce 12% ao ano no Brasil.",
+      "context": {
+        "mercado": "5% da populacao brasileira tem intolerancia a lactose; 1% tem doença celíaca",
+        "concorrencia": "Paprika e Mealime existem mas sao ingles; sem foco brasileiro",
+        "modelo_receita": "R$ 12.90/mes ou R$ 99.90/ano",
+        "complexidade": "Media-baixa - banco de receitas + logica de filtragem + UI",
+        "tempo_desenvolvimento": "4-6 semanas",
+        "tecnologias": "Flutter, Node.js/Python, SQLite, API de nutricao",
+        "diferenciais": "Receitas brasileiras, considera orcamento, lista de compras inteligente",
+        "risco": "Baixo - demanda crescente, nicho claro"
+      },
+      "constraints": [
+        "Receitas devem ser nutricionalmente balanceadas",
+        "Database de valores nutricionais para calculos",
+        "Interface acessivel para idosos"
+      ],
+      "priority": 7
+    }
+  ],
+  "results": [
+    {
+      "request_id": "e9f6a7d0-6eb",
+      "title": "Scanner de Notas Fiscais (Foto-Fatura -> Planilha)",
+      "verdict": "APROVADO",
+      "confidence": 0.7225,
+      "responses_count": 4,
+      "agent_responses": [
+        {
+          "agent_id": "sentinel",
+          "verdict": "APROVADO",
+          "reasoning": "Analise de seguranca realizada com 0 indicadores de seguranca e 1 de conformidade.",
+          "risks": [
+            "Aspectos de conformidade detectados: log",
+            "Integracao externa detectada - validar endpoints e autenticacao",
+            "Uso de IA detectado - validar vieses e transparencia"
+          ],
+          "recommendations": [
+            "Verificar conformidade regulatoria antes da implementacao",
+            "Utilizar autenticacao OAuth2/JWT para APIs externas",
+            "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+          ],
+          "confidence": 0.8,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "nexus",
+          "verdict": "CONDICIONAL",
+          "reasoning": "Viabilidade tecnica avaliada. Stack detectado: ['javascript', 'infra']. 4 riscos identificados.",
+          "risks": [
+            "Tecnologias detectadas: javascript(node,react), infra(cloud)",
+            "Integracao via API detectada - considerar versionamento e rate limiting",
+            "Requisito de tempo real - infraestrutura adequada necessaria",
+            "Sistema sem monitoramento especificado - adicionar observabilidade"
+          ],
+          "recommendations": [
+            "Implementar versionamento de API e documentacao OpenAPI",
+            "Avaliar WebSockets ou Server-Sent Events para comunicacao real-time",
+            "Projetar para escalabilidade horizontal desde o inicio",
+            "Implementar stack de observabilidade (metrics, logs, traces)"
+          ],
+          "confidence": 0.7000000000000001,
+          "response_time_ms": 10.423421859741211
+        },
+        {
+          "agent_id": "vortex",
+          "verdict": "APROVADO",
+          "reasoning": "Viabilidade de negocio avaliada. Areas detectadas: ['receita', 'mercado'].",
+          "risks": [
+            "Modelo de receita identificado - validar unit economics",
+            "Analise de mercado necessaria - validar produto-mercado fit",
+            "Prioridade alta - garantir recursos suficientes e timeline realista"
+          ],
+          "recommendations": [
+            "Definir KPIs de receita e validar unit economics antes do MVP",
+            "Realizar pesquisa de mercado e entrevistas com clientes potenciais",
+            "Focar no MVP com features essenciais para validacao rapida"
+          ],
+          "confidence": 0.7000000000000001,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "apolo",
+          "verdict": "APROVADO",
+          "reasoning": "Avaliacao holistica: complexidade=2/5, componentes=1, prioridade=9/10.",
+          "risks": [
+            "4 restricoes definidas",
+            "Contexto extenso - multiplos fatores a considerar",
+            "Prioridade alta (9/10) - requisito critico"
+          ],
+          "recommendations": [
+            "Alocar recursos prioritarios e definir milestones claros",
+            "Definir criterios de sucesso claros e mensuraveis",
+            "Estabelecer processo de revisao periodica"
+          ],
+          "confidence": 0.6900000000000001,
+          "response_time_ms": 0.0
+        }
+      ],
+      "risks": [
+        "Requisito de tempo real - infraestrutura adequada necessaria",
+        "Modelo de receita identificado - validar unit economics",
+        "Analise de mercado necessaria - validar produto-mercado fit",
+        "Uso de IA detectado - validar vieses e transparencia",
+        "Contexto extenso - multiplos fatores a considerar",
+        "Aspectos de conformidade detectados: log",
+        "Sistema sem monitoramento especificado - adicionar observabilidade",
+        "4 restricoes definidas",
+        "Tecnologias detectadas: javascript(node,react), infra(cloud)",
+        "Prioridade alta (9/10) - requisito critico",
+        "Prioridade alta - garantir recursos suficientes e timeline realista",
+        "Integracao via API detectada - considerar versionamento e rate limiting",
+        "Integracao externa detectada - validar endpoints e autenticacao"
+      ],
+      "recommendations": [
+        "Projetar para escalabilidade horizontal desde o inicio",
+        "Avaliar WebSockets ou Server-Sent Events para comunicacao real-time",
+        "Definir KPIs de receita e validar unit economics antes do MVP",
+        "Verificar conformidade regulatoria antes da implementacao",
+        "Utilizar autenticacao OAuth2/JWT para APIs externas",
+        "Estabelecer processo de revisao periodica",
+        "Implementar stack de observabilidade (metrics, logs, traces)",
+        "Focar no MVP com features essenciais para validacao rapida",
+        "Implementar versionamento de API e documentacao OpenAPI",
+        "Alocar recursos prioritarios e definir milestones claros",
+        "Definir criterios de sucesso claros e mensuraveis",
+        "Realizar pesquisa de mercado e entrevistas com clientes potenciais",
+        "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+      ],
+      "weighted_verdicts": {
+        "APROVADO": 2.999074373078117,
+        "CONDICIONAL": 0.9996617998199386
+      },
+      "legal_analysis": {
+        "request_id": "legal_1787793860_5104",
+        "opinion": {
+          "veredito": "NAO_CONFORME",
+          "risco": "ALTA",
+          "parecer": "PARECER JURÍDICO - Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\n\nDomínios analisados: digital\n\nLEIS APLICÁVEIS:\n  • Lei nº 14.063/2020 (Congresso Nacional)\n    Assinatura Eletronica\n    Ementa: Dispoe sobre o uso da assinatura eletronica.\n    Artigos: 1, 2, 3, 4, 5\n  • Lei nº 14.133/2021 (Congresso Nacional)\n    Nova Lei de Licitacoes\n    Ementa: Dispoe sobre licitacoes e contratos administrativos.\n    Artigos: 28, 31, 49, 75\n  • Lei nº 13.787/2018 (Congresso Nacional)\n    Documentos Eletronicos\n    Ementa: Dispoe sobre a validade juridica do documento eletronico.\n    Artigos: 1, 2, 3, 6, 8\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\nNão foram encontradas leis específicas que regulem esta ação. Recomenda-se consulta jurídica especializada.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\nDomínios: digital\n\nResumo: 1/3 itens atendidos, 2 pendentes\n\n✓ Conformidades verificadas:\n  • Cadeia de confiança validada\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Assinatura eletrônica qualificada\n    Base legal: Lei 14.063/20 art. 4º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Armazenamento seguro garantido\n    Base legal: Lei 13.787/18\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\n\nPrecedentes encontrados: 2\n\n• STJ (2024) - Validade de assinatura digital\n  Entendimento: Assinatura digital ICP-Brasil tem presunção de autenticidade. Outras assinaturas eletrônicas devem comprovar autenticidade.\n  Relevância: alta\n\n• TJSP (2024) - Nulidade de cláusula de foro online\n  Entendimento: Cláusula de foro exclusivo online pode ser nula quando dificulta acesso do consumidor à justiça.\n  Relevância: media\n\nTENDÊNCIAS JURISPRUDENCIAIS:\n  → Jurisprudência recente (2024-2025) aplicável\n\nConclusão: Jurisprudência favorável ao caso.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\nRiscos identificados: 1\nMulta estimada base: R$ 1,000.00\n\n• [MEDIA] multa (digital): Multa por infração em digital\n\nExposição financeira máxima estimada: R$ 1,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\nAlertas regulatórios: 2\n\n• [ALTO] 14.063/2020: Lei 14.063/2020 (Assinatura eletrônica) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Validar assinaturas eletrônicas conforme Lei nº 14.063/2020\n  2. Realizar pesquisa legislativa mais aprofundada\n  3. Solicitar parecer jurídico externo\n  4. Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)\n  5. Implementar: Armazenamento seguro garantido (Lei 13.787/18)\n  6. Monitorar mudanças de entendimento dos tribunais periodicamente\n  7. Documentar todas as decisões para eventual defesa\n  8. Monitorar mudanças legislativas periodicamente\n  9. Verificar novas regulamentações antes de implementação",
+          "analise": "PARECER JURÍDICO - Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\n\nDomínios analisados: digital\n\nLEIS APLICÁVEIS:\n  • Lei nº 14.063/2020 (Congresso Nacional)\n    Assinatura Eletronica\n    Ementa: Dispoe sobre o uso da assinatura eletronica.\n    Artigos: 1, 2, 3, 4, 5\n  • Lei nº 14.133/2021 (Congresso Nacional)\n    Nova Lei de Licitacoes\n    Ementa: Dispoe sobre licitacoes e contratos administrativos.\n    Artigos: 28, 31, 49, 75\n  • Lei nº 13.787/2018 (Congresso Nacional)\n    Documentos Eletronicos\n    Ementa: Dispoe sobre a validade juridica do documento eletronico.\n    Artigos: 1, 2, 3, 6, 8\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\nNão foram encontradas leis específicas que regulem esta ação. Recomenda-se consulta jurídica especializada.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\nDomínios: digital\n\nResumo: 1/3 itens atendidos, 2 pendentes\n\n✓ Conformidades verificadas:\n  • Cadeia de confiança validada\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Assinatura eletrônica qualificada\n    Base legal: Lei 14.063/20 art. 4º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Armazenamento seguro garantido\n    Base legal: Lei 13.787/18\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\n\nPrecedentes encontrados: 2\n\n• STJ (2024) - Validade de assinatura digital\n  Entendimento: Assinatura digital ICP-Brasil tem presunção de autenticidade. Outras assinaturas eletrônicas devem comprovar autenticidade.\n  Relevância: alta\n\n• TJSP (2024) - Nulidade de cláusula de foro online\n  Entendimento: Cláusula de foro exclusivo online pode ser nula quando dificulta acesso do consumidor à justiça.\n  Relevância: media\n\nTENDÊNCIAS JURISPRUDENCIAIS:\n  → Jurisprudência recente (2024-2025) aplicável\n\nConclusão: Jurisprudência favorável ao caso.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\nRiscos identificados: 1\nMulta estimada base: R$ 1,000.00\n\n• [MEDIA] multa (digital): Multa por infração em digital\n\nExposição financeira máxima estimada: R$ 1,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Scanner de Notas Fiscais (Foto-Fatura -> Planilha)\nAlertas regulatórios: 2\n\n• [ALTO] 14.063/2020: Lei 14.063/2020 (Assinatura eletrônica) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Validar assinaturas eletrônicas conforme Lei nº 14.063/2020\n  2. Realizar pesquisa legislativa mais aprofundada\n  3. Solicitar parecer jurídico externo\n  4. Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)\n  5. Implementar: Armazenamento seguro garantido (Lei 13.787/18)\n  6. Monitorar mudanças de entendimento dos tribunais periodicamente\n  7. Documentar todas as decisões para eventual defesa\n  8. Monitorar mudanças legislativas periodicamente\n  9. Verificar novas regulamentações antes de implementação",
+          "leis_aplicaveis": [
+            {
+              "lei": "14.063/2020",
+              "orgao": "Congresso Nacional",
+              "titulo": "Assinatura Eletronica",
+              "ementa": "Dispoe sobre o uso da assinatura eletronica.",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            },
+            {
+              "lei": "14.133/2021",
+              "orgao": "Congresso Nacional",
+              "titulo": "Nova Lei de Licitacoes",
+              "ementa": "Dispoe sobre licitacoes e contratos administrativos.",
+              "artigos": [
+                "28",
+                "31",
+                "49",
+                "75"
+              ]
+            },
+            {
+              "lei": "13.787/2018",
+              "orgao": "Congresso Nacional",
+              "titulo": "Documentos Eletronicos",
+              "ementa": "Dispoe sobre a validade juridica do documento eletronico.",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "6",
+                "8"
+              ]
+            }
+          ],
+          "recomendacoes": [
+            "Validar assinaturas eletrônicas conforme Lei nº 14.063/2020",
+            "Realizar pesquisa legislativa mais aprofundada",
+            "Solicitar parecer jurídico externo",
+            "Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)",
+            "Implementar: Armazenamento seguro garantido (Lei 13.787/18)",
+            "Monitorar mudanças de entendimento dos tribunais periodicamente",
+            "Documentar todas as decisões para eventual defesa",
+            "Monitorar mudanças legislativas periodicamente",
+            "Verificar novas regulamentações antes de implementação"
+          ],
+          "confianca": 0.95
+        },
+        "agentes_consultados": [
+          "legislator",
+          "compliance",
+          "jurisprudence",
+          "risk_legal",
+          "regulatory"
+        ],
+        "tempo_analise_ms": 15.634536743164062
+      },
+      "elapsed_ms": 26.057958602905273
+    },
+    {
+      "request_id": "9de5aa4c-555",
+      "title": "Calculadora de MEI com Alertas",
+      "verdict": "APROVADO",
+      "confidence": 0.6975,
+      "responses_count": 4,
+      "agent_responses": [
+        {
+          "agent_id": "sentinel",
+          "verdict": "APROVADO",
+          "reasoning": "Analise de seguranca realizada com 0 indicadores de seguranca e 1 de conformidade.",
+          "risks": [
+            "Aspectos de conformidade detectados: log",
+            "Uso de IA detectado - validar vieses e transparencia"
+          ],
+          "recommendations": [
+            "Verificar conformidade regulatoria antes da implementacao",
+            "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+          ],
+          "confidence": 0.75,
+          "response_time_ms": 3.6962032318115234
+        },
+        {
+          "agent_id": "nexus",
+          "verdict": "APROVADO",
+          "reasoning": "Viabilidade tecnica avaliada. Stack detectado: ['javascript']. 3 riscos identificados.",
+          "risks": [
+            "Tecnologias detectadas: javascript(react)",
+            "Requisito de tempo real - infraestrutura adequada necessaria",
+            "Sistema sem monitoramento especificado - adicionar observabilidade"
+          ],
+          "recommendations": [
+            "Avaliar WebSockets ou Server-Sent Events para comunicacao real-time",
+            "Implementar stack de observabilidade (metrics, logs, traces)"
+          ],
+          "confidence": 0.65,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "vortex",
+          "verdict": "CONDICIONAL",
+          "reasoning": "Viabilidade de negocio avaliada. Areas detectadas: ['receita', 'mercado'].",
+          "risks": [
+            "Modelo de receita identificado - validar unit economics",
+            "Analise de mercado necessaria - validar produto-mercado fit",
+            "Requisito de SLA identificado - impacto em custo e operacao",
+            "Prioridade alta - garantir recursos suficientes e timeline realista"
+          ],
+          "recommendations": [
+            "Definir KPIs de receita e validar unit economics antes do MVP",
+            "Realizar pesquisa de mercado e entrevistas com clientes potenciais",
+            "Definir SLAs realistas com margem de tolerancia",
+            "Focar no MVP com features essenciais para validacao rapida"
+          ],
+          "confidence": 0.7000000000000001,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "apolo",
+          "verdict": "APROVADO",
+          "reasoning": "Avaliacao holistica: complexidade=2/5, componentes=1, prioridade=8/10.",
+          "risks": [
+            "3 restricoes definidas",
+            "Contexto extenso - multiplos fatores a considerar",
+            "Prioridade alta (8/10) - requisito critico"
+          ],
+          "recommendations": [
+            "Alocar recursos prioritarios e definir milestones claros",
+            "Definir criterios de sucesso claros e mensuraveis",
+            "Estabelecer processo de revisao periodica"
+          ],
+          "confidence": 0.6900000000000001,
+          "response_time_ms": 0.0
+        }
+      ],
+      "risks": [
+        "Requisito de tempo real - infraestrutura adequada necessaria",
+        "Modelo de receita identificado - validar unit economics",
+        "3 restricoes definidas",
+        "Uso de IA detectado - validar vieses e transparencia",
+        "Contexto extenso - multiplos fatores a considerar",
+        "Aspectos de conformidade detectados: log",
+        "Sistema sem monitoramento especificado - adicionar observabilidade",
+        "Tecnologias detectadas: javascript(react)",
+        "Requisito de SLA identificado - impacto em custo e operacao",
+        "Prioridade alta (8/10) - requisito critico",
+        "Prioridade alta - garantir recursos suficientes e timeline realista",
+        "Analise de mercado necessaria - validar produto-mercado fit"
+      ],
+      "recommendations": [
+        "Avaliar WebSockets ou Server-Sent Events para comunicacao real-time",
+        "Definir KPIs de receita e validar unit economics antes do MVP",
+        "Verificar conformidade regulatoria antes da implementacao",
+        "Definir SLAs realistas com margem de tolerancia",
+        "Estabelecer processo de revisao periodica",
+        "Implementar stack de observabilidade (metrics, logs, traces)",
+        "Focar no MVP com features essenciais para validacao rapida",
+        "Alocar recursos prioritarios e definir milestones claros",
+        "Definir criterios de sucesso claros e mensuraveis",
+        "Realizar pesquisa de mercado e entrevistas com clientes potenciais",
+        "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+      ],
+      "weighted_verdicts": {
+        "APROVADO": 2.9992994290362898,
+        "CONDICIONAL": 0.9997807333703626
+      },
+      "legal_analysis": {
+        "request_id": "legal_1787793860_8261",
+        "opinion": {
+          "veredito": "NAO_CONFORME",
+          "risco": "ALTA",
+          "parecer": "PARECER JURÍDICO - Calculadora de MEI com Alertas\n\nDomínios analisados: empresarial, tributário, tributario\n\nLEIS APLICÁVEIS:\n  • Lei nº 14.195/2021 (Congresso Nacional)\n    Lei das Microempresas e Empresas de Pequeno Porte\n    Ementa: Dispoe sobre oregistro de empresas e sobre o Microempreendedor Individual (MEI).\n    Artigos: 1, 2, 3, 18-A\n  • Lei nº 6.404/1976 (Congresso Nacional)\n    Lei das Sociedades por Acoes\n    Ementa: Dispoe sobre as Sociedades por Acoes.\n    Artigos: 1, 2, 100, 105\n  • Lei nº 11.101/2005 (Congresso Nacional)\n    Lei de Recuperacao Judicial e Extrajudicial\n    Ementa: Dispoe sobre a recuperacao judicial, extrajudicial e a falencia do empresario.\n    Artigos: 2, 3, 47, 49, 66, 94\n  • Lei nº 5.172/1966 (Congresso Nacional)\n    Codigo Tributario Nacional\n    Ementa: Dispoe sobre o sistema tributario nacional.\n    Artigos: 1, 3, 113, 116, 138\n  • Lei nº 12.715/2012 (Congresso Nacional)\n    Regime Especial de Tributacao para Plataformas Digitais\n    Ementa: Dispoe sobre o regime especial de tributacao.\n    Artigos: 1, 2, 3\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\n=== PARECER DO LEGISLATOR ===\n\nLeis identificadas e aplicáveis:\n\n• Lei nº 14.195/2021 - Lei das Microempresas e Empresas de Pequeno Porte\n  Artigos: 1, 2, 3, 18-A\n  A Lei Complementar (Lei nº 14.195/2021) simplifica a abertura de empresas. O MEI pode faturar até R$ 81.000/ano. Empresas do Simples Nacional têm regime tributário simplificado.\n\n  Obrigações:\n    - Manter contabilidade organizada\n    - Emitir notas fiscais\n    - Cumprir obrigações acessórias (DAS para MEI)\n  Direitos:\n    - Direitos previstos na legislação aplicável\n\n• Lei nº 5.172/1966 - Codigo Tributario Nacional\n  Artigos: 1, 3, 113, 116, 138\n  A Codigo Tributario Nacional (Lei nº 5.172/1966) regulamenta tributario. Artigos relevantes: 1, 3, 113, 116, 138.\n\n  Obrigações:\n    - Cumprir as disposições da legislação vigente\n  Direitos:\n    - Direitos previstos na legislação aplicável\n\nConclusão: Ação compatível com a legislação vigente.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Calculadora de MEI com Alertas\nDomínios: empresarial, tributário, tributario\n\nResumo: 0/4 itens atendidos, 4 pendentes\n\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Contrato social vigente\n    Base legal: Lei 6.404/76\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Inscrições estadual/municipal\n    Base legal: Varia por estado\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Capital social integralizado\n    Base legal: Lei 6.404/76 art. 100\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Calculadora de MEI com Alertas\n\nNão foram encontrados precedentes judiciais diretamente aplicáveis ao caso. Recomenda-se pesquisa jurisprudencial mais aprofundada nos tribunais.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Calculadora de MEI com Alertas\nRiscos identificados: 4\nMulta estimada base: R$ 7,000.00\n\n• [MEDIA] multa (empresarial): Multa por infração em empresarial\n• [MEDIA] multa (tributário): Multa por infração em tributário\n• [MEDIA] multa (tributario): Multa por infração em tributario\n• [MEDIA] exposição (digital): Exposição pública aumenta risco de incidentes\n\nExposição financeira máxima estimada: R$ 7,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Calculadora de MEI com Alertas\nAlertas regulatórios: 2\n\n• [ALTO] 14.195/2021: Lei 14.195/2021 (MEI e empresas) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Implementar: Contrato social vigente (Lei 6.404/76)\n  2. Implementar: Inscrições estadual/municipal (Varia por estado)\n  3. Implementar: Capital social integralizado (Lei 6.404/76 art. 100)\n  4. Monitorar mudanças de entendimento dos tribunais periodicamente\n  5. Documentar todas as decisões para eventual defesa\n  6. Monitorar mudanças legislativas periodicamente\n  7. Verificar novas regulamentações antes de implementação",
+          "analise": "PARECER JURÍDICO - Calculadora de MEI com Alertas\n\nDomínios analisados: empresarial, tributário, tributario\n\nLEIS APLICÁVEIS:\n  • Lei nº 14.195/2021 (Congresso Nacional)\n    Lei das Microempresas e Empresas de Pequeno Porte\n    Ementa: Dispoe sobre oregistro de empresas e sobre o Microempreendedor Individual (MEI).\n    Artigos: 1, 2, 3, 18-A\n  • Lei nº 6.404/1976 (Congresso Nacional)\n    Lei das Sociedades por Acoes\n    Ementa: Dispoe sobre as Sociedades por Acoes.\n    Artigos: 1, 2, 100, 105\n  • Lei nº 11.101/2005 (Congresso Nacional)\n    Lei de Recuperacao Judicial e Extrajudicial\n    Ementa: Dispoe sobre a recuperacao judicial, extrajudicial e a falencia do empresario.\n    Artigos: 2, 3, 47, 49, 66, 94\n  • Lei nº 5.172/1966 (Congresso Nacional)\n    Codigo Tributario Nacional\n    Ementa: Dispoe sobre o sistema tributario nacional.\n    Artigos: 1, 3, 113, 116, 138\n  • Lei nº 12.715/2012 (Congresso Nacional)\n    Regime Especial de Tributacao para Plataformas Digitais\n    Ementa: Dispoe sobre o regime especial de tributacao.\n    Artigos: 1, 2, 3\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\n=== PARECER DO LEGISLATOR ===\n\nLeis identificadas e aplicáveis:\n\n• Lei nº 14.195/2021 - Lei das Microempresas e Empresas de Pequeno Porte\n  Artigos: 1, 2, 3, 18-A\n  A Lei Complementar (Lei nº 14.195/2021) simplifica a abertura de empresas. O MEI pode faturar até R$ 81.000/ano. Empresas do Simples Nacional têm regime tributário simplificado.\n\n  Obrigações:\n    - Manter contabilidade organizada\n    - Emitir notas fiscais\n    - Cumprir obrigações acessórias (DAS para MEI)\n  Direitos:\n    - Direitos previstos na legislação aplicável\n\n• Lei nº 5.172/1966 - Codigo Tributario Nacional\n  Artigos: 1, 3, 113, 116, 138\n  A Codigo Tributario Nacional (Lei nº 5.172/1966) regulamenta tributario. Artigos relevantes: 1, 3, 113, 116, 138.\n\n  Obrigações:\n    - Cumprir as disposições da legislação vigente\n  Direitos:\n    - Direitos previstos na legislação aplicável\n\nConclusão: Ação compatível com a legislação vigente.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Calculadora de MEI com Alertas\nDomínios: empresarial, tributário, tributario\n\nResumo: 0/4 itens atendidos, 4 pendentes\n\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Contrato social vigente\n    Base legal: Lei 6.404/76\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Inscrições estadual/municipal\n    Base legal: Varia por estado\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Capital social integralizado\n    Base legal: Lei 6.404/76 art. 100\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Calculadora de MEI com Alertas\n\nNão foram encontrados precedentes judiciais diretamente aplicáveis ao caso. Recomenda-se pesquisa jurisprudencial mais aprofundada nos tribunais.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Calculadora de MEI com Alertas\nRiscos identificados: 4\nMulta estimada base: R$ 7,000.00\n\n• [MEDIA] multa (empresarial): Multa por infração em empresarial\n• [MEDIA] multa (tributário): Multa por infração em tributário\n• [MEDIA] multa (tributario): Multa por infração em tributario\n• [MEDIA] exposição (digital): Exposição pública aumenta risco de incidentes\n\nExposição financeira máxima estimada: R$ 7,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Calculadora de MEI com Alertas\nAlertas regulatórios: 2\n\n• [ALTO] 14.195/2021: Lei 14.195/2021 (MEI e empresas) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Implementar: Contrato social vigente (Lei 6.404/76)\n  2. Implementar: Inscrições estadual/municipal (Varia por estado)\n  3. Implementar: Capital social integralizado (Lei 6.404/76 art. 100)\n  4. Monitorar mudanças de entendimento dos tribunais periodicamente\n  5. Documentar todas as decisões para eventual defesa\n  6. Monitorar mudanças legislativas periodicamente\n  7. Verificar novas regulamentações antes de implementação",
+          "leis_aplicaveis": [
+            {
+              "lei": "14.195/2021",
+              "orgao": "Congresso Nacional",
+              "titulo": "Lei das Microempresas e Empresas de Pequeno Porte",
+              "ementa": "Dispoe sobre oregistro de empresas e sobre o Microempreendedor Individual (MEI).",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "18-A"
+              ]
+            },
+            {
+              "lei": "6.404/1976",
+              "orgao": "Congresso Nacional",
+              "titulo": "Lei das Sociedades por Acoes",
+              "ementa": "Dispoe sobre as Sociedades por Acoes.",
+              "artigos": [
+                "1",
+                "2",
+                "100",
+                "105"
+              ]
+            },
+            {
+              "lei": "11.101/2005",
+              "orgao": "Congresso Nacional",
+              "titulo": "Lei de Recuperacao Judicial e Extrajudicial",
+              "ementa": "Dispoe sobre a recuperacao judicial, extrajudicial e a falencia do empresario.",
+              "artigos": [
+                "2",
+                "3",
+                "47",
+                "49",
+                "66",
+                "94"
+              ]
+            },
+            {
+              "lei": "5.172/1966",
+              "orgao": "Congresso Nacional",
+              "titulo": "Codigo Tributario Nacional",
+              "ementa": "Dispoe sobre o sistema tributario nacional.",
+              "artigos": [
+                "1",
+                "3",
+                "113",
+                "116",
+                "138"
+              ]
+            },
+            {
+              "lei": "12.715/2012",
+              "orgao": "Congresso Nacional",
+              "titulo": "Regime Especial de Tributacao para Plataformas Digitais",
+              "ementa": "Dispoe sobre o regime especial de tributacao.",
+              "artigos": [
+                "1",
+                "2",
+                "3"
+              ]
+            }
+          ],
+          "recomendacoes": [
+            "Implementar: Contrato social vigente (Lei 6.404/76)",
+            "Implementar: Inscrições estadual/municipal (Varia por estado)",
+            "Implementar: Capital social integralizado (Lei 6.404/76 art. 100)",
+            "Monitorar mudanças de entendimento dos tribunais periodicamente",
+            "Documentar todas as decisões para eventual defesa",
+            "Monitorar mudanças legislativas periodicamente",
+            "Verificar novas regulamentações antes de implementação"
+          ],
+          "confianca": 0.95
+        },
+        "agentes_consultados": [
+          "legislator",
+          "compliance",
+          "jurisprudence",
+          "risk_legal",
+          "regulatory"
+        ],
+        "tempo_analise_ms": 0.0
+      },
+      "elapsed_ms": 15.811920166015625
+    },
+    {
+      "request_id": "ed1093c0-dd2",
+      "title": "Micro-journaling para Ansiedade",
+      "verdict": "APROVADO",
+      "confidence": 0.7100000000000001,
+      "responses_count": 4,
+      "agent_responses": [
+        {
+          "agent_id": "sentinel",
+          "verdict": "APROVADO",
+          "reasoning": "Analise de seguranca realizada com 0 indicadores de seguranca e 1 de conformidade.",
+          "risks": [
+            "Aspectos de conformidade detectados: log",
+            "Integracao externa detectada - validar endpoints e autenticacao",
+            "Uso de IA detectado - validar vieses e transparencia"
+          ],
+          "recommendations": [
+            "Verificar conformidade regulatoria antes da implementacao",
+            "Utilizar autenticacao OAuth2/JWT para APIs externas",
+            "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+          ],
+          "confidence": 0.8,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "nexus",
+          "verdict": "APROVADO",
+          "reasoning": "Viabilidade tecnica avaliada. Stack detectado: ['ai']. 3 riscos identificados.",
+          "risks": [
+            "Tecnologias detectadas: ai(openai)",
+            "Integracao via API detectada - considerar versionamento e rate limiting",
+            "Sistema sem monitoramento especificado - adicionar observabilidade"
+          ],
+          "recommendations": [
+            "Implementar versionamento de API e documentacao OpenAPI",
+            "Implementar stack de observabilidade (metrics, logs, traces)"
+          ],
+          "confidence": 0.65,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "vortex",
+          "verdict": "APROVADO",
+          "reasoning": "Viabilidade de negocio avaliada. Areas detectadas: ['receita', 'mercado'].",
+          "risks": [
+            "Modelo de receita identificado - validar unit economics",
+            "Analise de mercado necessaria - validar produto-mercado fit"
+          ],
+          "recommendations": [
+            "Definir KPIs de receita e validar unit economics antes do MVP",
+            "Realizar pesquisa de mercado e entrevistas com clientes potenciais"
+          ],
+          "confidence": 0.7000000000000001,
+          "response_time_ms": 8.311271667480469
+        },
+        {
+          "agent_id": "apolo",
+          "verdict": "APROVADO",
+          "reasoning": "Avaliacao holistica: complexidade=2/5, componentes=1, prioridade=7/10.",
+          "risks": [
+            "3 restricoes definidas",
+            "Contexto extenso - multiplos fatores a considerar"
+          ],
+          "recommendations": [
+            "Definir criterios de sucesso claros e mensuraveis",
+            "Estabelecer processo de revisao periodica"
+          ],
+          "confidence": 0.6900000000000001,
+          "response_time_ms": 0.0
+        }
+      ],
+      "risks": [
+        "Analise de mercado necessaria - validar produto-mercado fit",
+        "Modelo de receita identificado - validar unit economics",
+        "3 restricoes definidas",
+        "Uso de IA detectado - validar vieses e transparencia",
+        "Tecnologias detectadas: ai(openai)",
+        "Contexto extenso - multiplos fatores a considerar",
+        "Aspectos de conformidade detectados: log",
+        "Sistema sem monitoramento especificado - adicionar observabilidade",
+        "Integracao via API detectada - considerar versionamento e rate limiting",
+        "Integracao externa detectada - validar endpoints e autenticacao"
+      ],
+      "recommendations": [
+        "Definir KPIs de receita e validar unit economics antes do MVP",
+        "Verificar conformidade regulatoria antes da implementacao",
+        "Utilizar autenticacao OAuth2/JWT para APIs externas",
+        "Estabelecer processo de revisao periodica",
+        "Implementar stack de observabilidade (metrics, logs, traces)",
+        "Implementar versionamento de API e documentacao OpenAPI",
+        "Definir criterios de sucesso claros e mensuraveis",
+        "Realizar pesquisa de mercado e entrevistas com clientes potenciais",
+        "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+      ],
+      "weighted_verdicts": {
+        "APROVADO": 3.99930724846656
+      },
+      "legal_analysis": {
+        "request_id": "legal_1787793860_6227",
+        "opinion": {
+          "veredito": "NAO_CONFORME",
+          "risco": "ALTA",
+          "parecer": "PARECER JURÍDICO - Micro-journaling para Ansiedade\n\nDomínios analisados: digital\n\nLEIS APLICÁVEIS:\n  • Lei nº 14.063/2020 (Congresso Nacional)\n    Assinatura Eletronica\n    Ementa: Dispoe sobre o uso da assinatura eletronica.\n    Artigos: 1, 2, 3, 4, 5\n  • Lei nº 14.133/2021 (Congresso Nacional)\n    Nova Lei de Licitacoes\n    Ementa: Dispoe sobre licitacoes e contratos administrativos.\n    Artigos: 28, 31, 49, 75\n  • Lei nº 13.787/2018 (Congresso Nacional)\n    Documentos Eletronicos\n    Ementa: Dispoe sobre a validade juridica do documento eletronico.\n    Artigos: 1, 2, 3, 6, 8\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\nNão foram encontradas leis específicas que regulem esta ação. Recomenda-se consulta jurídica especializada.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Micro-journaling para Ansiedade\nDomínios: digital\n\nResumo: 1/3 itens atendidos, 2 pendentes\n\n✓ Conformidades verificadas:\n  • Cadeia de confiança validada\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Assinatura eletrônica qualificada\n    Base legal: Lei 14.063/20 art. 4º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Armazenamento seguro garantido\n    Base legal: Lei 13.787/18\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Micro-journaling para Ansiedade\n\nPrecedentes encontrados: 2\n\n• STJ (2024) - Validade de assinatura digital\n  Entendimento: Assinatura digital ICP-Brasil tem presunção de autenticidade. Outras assinaturas eletrônicas devem comprovar autenticidade.\n  Relevância: alta\n\n• TJSP (2024) - Nulidade de cláusula de foro online\n  Entendimento: Cláusula de foro exclusivo online pode ser nula quando dificulta acesso do consumidor à justiça.\n  Relevância: media\n\nTENDÊNCIAS JURISPRUDENCIAIS:\n  → Jurisprudência recente (2024-2025) aplicável\n\nConclusão: Jurisprudência favorável ao caso.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Micro-journaling para Ansiedade\nRiscos identificados: 1\nMulta estimada base: R$ 1,000.00\n\n• [MEDIA] multa (digital): Multa por infração em digital\n\nExposição financeira máxima estimada: R$ 1,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Micro-journaling para Ansiedade\nAlertas regulatórios: 2\n\n• [ALTO] 14.063/2020: Lei 14.063/2020 (Assinatura eletrônica) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Validar assinaturas eletrônicas conforme Lei nº 14.063/2020\n  2. Realizar pesquisa legislativa mais aprofundada\n  3. Solicitar parecer jurídico externo\n  4. Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)\n  5. Implementar: Armazenamento seguro garantido (Lei 13.787/18)\n  6. Monitorar mudanças de entendimento dos tribunais periodicamente\n  7. Documentar todas as decisões para eventual defesa\n  8. Monitorar mudanças legislativas periodicamente\n  9. Verificar novas regulamentações antes de implementação",
+          "analise": "PARECER JURÍDICO - Micro-journaling para Ansiedade\n\nDomínios analisados: digital\n\nLEIS APLICÁVEIS:\n  • Lei nº 14.063/2020 (Congresso Nacional)\n    Assinatura Eletronica\n    Ementa: Dispoe sobre o uso da assinatura eletronica.\n    Artigos: 1, 2, 3, 4, 5\n  • Lei nº 14.133/2021 (Congresso Nacional)\n    Nova Lei de Licitacoes\n    Ementa: Dispoe sobre licitacoes e contratos administrativos.\n    Artigos: 28, 31, 49, 75\n  • Lei nº 13.787/2018 (Congresso Nacional)\n    Documentos Eletronicos\n    Ementa: Dispoe sobre a validade juridica do documento eletronico.\n    Artigos: 1, 2, 3, 6, 8\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\nNão foram encontradas leis específicas que regulem esta ação. Recomenda-se consulta jurídica especializada.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Micro-journaling para Ansiedade\nDomínios: digital\n\nResumo: 1/3 itens atendidos, 2 pendentes\n\n✓ Conformidades verificadas:\n  • Cadeia de confiança validada\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Assinatura eletrônica qualificada\n    Base legal: Lei 14.063/20 art. 4º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Armazenamento seguro garantido\n    Base legal: Lei 13.787/18\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Micro-journaling para Ansiedade\n\nPrecedentes encontrados: 2\n\n• STJ (2024) - Validade de assinatura digital\n  Entendimento: Assinatura digital ICP-Brasil tem presunção de autenticidade. Outras assinaturas eletrônicas devem comprovar autenticidade.\n  Relevância: alta\n\n• TJSP (2024) - Nulidade de cláusula de foro online\n  Entendimento: Cláusula de foro exclusivo online pode ser nula quando dificulta acesso do consumidor à justiça.\n  Relevância: media\n\nTENDÊNCIAS JURISPRUDENCIAIS:\n  → Jurisprudência recente (2024-2025) aplicável\n\nConclusão: Jurisprudência favorável ao caso.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Micro-journaling para Ansiedade\nRiscos identificados: 1\nMulta estimada base: R$ 1,000.00\n\n• [MEDIA] multa (digital): Multa por infração em digital\n\nExposição financeira máxima estimada: R$ 1,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Micro-journaling para Ansiedade\nAlertas regulatórios: 2\n\n• [ALTO] 14.063/2020: Lei 14.063/2020 (Assinatura eletrônica) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Validar assinaturas eletrônicas conforme Lei nº 14.063/2020\n  2. Realizar pesquisa legislativa mais aprofundada\n  3. Solicitar parecer jurídico externo\n  4. Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)\n  5. Implementar: Armazenamento seguro garantido (Lei 13.787/18)\n  6. Monitorar mudanças de entendimento dos tribunais periodicamente\n  7. Documentar todas as decisões para eventual defesa\n  8. Monitorar mudanças legislativas periodicamente\n  9. Verificar novas regulamentações antes de implementação",
+          "leis_aplicaveis": [
+            {
+              "lei": "14.063/2020",
+              "orgao": "Congresso Nacional",
+              "titulo": "Assinatura Eletronica",
+              "ementa": "Dispoe sobre o uso da assinatura eletronica.",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            },
+            {
+              "lei": "14.133/2021",
+              "orgao": "Congresso Nacional",
+              "titulo": "Nova Lei de Licitacoes",
+              "ementa": "Dispoe sobre licitacoes e contratos administrativos.",
+              "artigos": [
+                "28",
+                "31",
+                "49",
+                "75"
+              ]
+            },
+            {
+              "lei": "13.787/2018",
+              "orgao": "Congresso Nacional",
+              "titulo": "Documentos Eletronicos",
+              "ementa": "Dispoe sobre a validade juridica do documento eletronico.",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "6",
+                "8"
+              ]
+            }
+          ],
+          "recomendacoes": [
+            "Validar assinaturas eletrônicas conforme Lei nº 14.063/2020",
+            "Realizar pesquisa legislativa mais aprofundada",
+            "Solicitar parecer jurídico externo",
+            "Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)",
+            "Implementar: Armazenamento seguro garantido (Lei 13.787/18)",
+            "Monitorar mudanças de entendimento dos tribunais periodicamente",
+            "Documentar todas as decisões para eventual defesa",
+            "Monitorar mudanças legislativas periodicamente",
+            "Verificar novas regulamentações antes de implementação"
+          ],
+          "confianca": 0.95
+        },
+        "agentes_consultados": [
+          "legislator",
+          "compliance",
+          "jurisprudence",
+          "risk_legal",
+          "regulatory"
+        ],
+        "tempo_analise_ms": 0.0
+      },
+      "elapsed_ms": 25.870561599731445
+    },
+    {
+      "request_id": "bdfe89d2-3f1",
+      "title": "Rastreador de Ruido do Bairro",
+      "verdict": "APROVADO",
+      "confidence": 0.6975,
+      "responses_count": 4,
+      "agent_responses": [
+        {
+          "agent_id": "sentinel",
+          "verdict": "APROVADO",
+          "reasoning": "Analise de seguranca realizada com 0 indicadores de seguranca e 1 de conformidade.",
+          "risks": [
+            "Aspectos de conformidade detectados: log",
+            "Integracao externa detectada - validar endpoints e autenticacao",
+            "Uso de IA detectado - validar vieses e transparencia"
+          ],
+          "recommendations": [
+            "Verificar conformidade regulatoria antes da implementacao",
+            "Utilizar autenticacao OAuth2/JWT para APIs externas",
+            "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+          ],
+          "confidence": 0.8,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "nexus",
+          "verdict": "APROVADO",
+          "reasoning": "Viabilidade tecnica avaliada. Stack detectado: generico. 2 riscos identificados.",
+          "risks": [
+            "Integracao via API detectada - considerar versionamento e rate limiting",
+            "Sistema sem monitoramento especificado - adicionar observabilidade"
+          ],
+          "recommendations": [
+            "Implementar versionamento de API e documentacao OpenAPI",
+            "Implementar stack de observabilidade (metrics, logs, traces)"
+          ],
+          "confidence": 0.6,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "vortex",
+          "verdict": "APROVADO",
+          "reasoning": "Viabilidade de negocio avaliada. Areas detectadas: ['receita', 'mercado'].",
+          "risks": [
+            "Modelo de receita identificado - validar unit economics",
+            "Analise de mercado necessaria - validar produto-mercado fit"
+          ],
+          "recommendations": [
+            "Definir KPIs de receita e validar unit economics antes do MVP",
+            "Realizar pesquisa de mercado e entrevistas com clientes potenciais"
+          ],
+          "confidence": 0.7000000000000001,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "apolo",
+          "verdict": "APROVADO",
+          "reasoning": "Avaliacao holistica: complexidade=2/5, componentes=1, prioridade=6/10.",
+          "risks": [
+            "3 restricoes definidas",
+            "Contexto extenso - multiplos fatores a considerar"
+          ],
+          "recommendations": [
+            "Definir criterios de sucesso claros e mensuraveis",
+            "Estabelecer processo de revisao periodica"
+          ],
+          "confidence": 0.6900000000000001,
+          "response_time_ms": 0.0
+        }
+      ],
+      "risks": [
+        "Analise de mercado necessaria - validar produto-mercado fit",
+        "Modelo de receita identificado - validar unit economics",
+        "3 restricoes definidas",
+        "Uso de IA detectado - validar vieses e transparencia",
+        "Contexto extenso - multiplos fatores a considerar",
+        "Aspectos de conformidade detectados: log",
+        "Sistema sem monitoramento especificado - adicionar observabilidade",
+        "Integracao via API detectada - considerar versionamento e rate limiting",
+        "Integracao externa detectada - validar endpoints e autenticacao"
+      ],
+      "recommendations": [
+        "Definir KPIs de receita e validar unit economics antes do MVP",
+        "Verificar conformidade regulatoria antes da implementacao",
+        "Utilizar autenticacao OAuth2/JWT para APIs externas",
+        "Estabelecer processo de revisao periodica",
+        "Implementar stack de observabilidade (metrics, logs, traces)",
+        "Implementar versionamento de API e documentacao OpenAPI",
+        "Definir criterios de sucesso claros e mensuraveis",
+        "Realizar pesquisa de mercado e entrevistas com clientes potenciais",
+        "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+      ],
+      "weighted_verdicts": {
+        "APROVADO": 3.999475497472287
+      },
+      "legal_analysis": {
+        "request_id": "legal_1787793860_167",
+        "opinion": {
+          "veredito": "NAO_CONFORME",
+          "risco": "ALTA",
+          "parecer": "PARECER JURÍDICO - Rastreador de Ruido do Bairro\n\nDomínios analisados: digital\n\nLEIS APLICÁVEIS:\n  • Lei nº 14.063/2020 (Congresso Nacional)\n    Assinatura Eletronica\n    Ementa: Dispoe sobre o uso da assinatura eletronica.\n    Artigos: 1, 2, 3, 4, 5\n  • Lei nº 14.133/2021 (Congresso Nacional)\n    Nova Lei de Licitacoes\n    Ementa: Dispoe sobre licitacoes e contratos administrativos.\n    Artigos: 28, 31, 49, 75\n  • Lei nº 13.787/2018 (Congresso Nacional)\n    Documentos Eletronicos\n    Ementa: Dispoe sobre a validade juridica do documento eletronico.\n    Artigos: 1, 2, 3, 6, 8\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\nNão foram encontradas leis específicas que regulem esta ação. Recomenda-se consulta jurídica especializada.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Rastreador de Ruido do Bairro\nDomínios: digital\n\nResumo: 1/3 itens atendidos, 2 pendentes\n\n✓ Conformidades verificadas:\n  • Cadeia de confiança validada\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Assinatura eletrônica qualificada\n    Base legal: Lei 14.063/20 art. 4º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Armazenamento seguro garantido\n    Base legal: Lei 13.787/18\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Rastreador de Ruido do Bairro\n\nPrecedentes encontrados: 2\n\n• STJ (2024) - Validade de assinatura digital\n  Entendimento: Assinatura digital ICP-Brasil tem presunção de autenticidade. Outras assinaturas eletrônicas devem comprovar autenticidade.\n  Relevância: alta\n\n• TJSP (2024) - Nulidade de cláusula de foro online\n  Entendimento: Cláusula de foro exclusivo online pode ser nula quando dificulta acesso do consumidor à justiça.\n  Relevância: media\n\nTENDÊNCIAS JURISPRUDENCIAIS:\n  → Jurisprudência recente (2024-2025) aplicável\n\nConclusão: Jurisprudência favorável ao caso.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Rastreador de Ruido do Bairro\nRiscos identificados: 1\nMulta estimada base: R$ 1,000.00\n\n• [MEDIA] multa (digital): Multa por infração em digital\n\nExposição financeira máxima estimada: R$ 1,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Rastreador de Ruido do Bairro\nAlertas regulatórios: 2\n\n• [ALTO] 14.063/2020: Lei 14.063/2020 (Assinatura eletrônica) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Validar assinaturas eletrônicas conforme Lei nº 14.063/2020\n  2. Realizar pesquisa legislativa mais aprofundada\n  3. Solicitar parecer jurídico externo\n  4. Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)\n  5. Implementar: Armazenamento seguro garantido (Lei 13.787/18)\n  6. Monitorar mudanças de entendimento dos tribunais periodicamente\n  7. Documentar todas as decisões para eventual defesa\n  8. Monitorar mudanças legislativas periodicamente\n  9. Verificar novas regulamentações antes de implementação",
+          "analise": "PARECER JURÍDICO - Rastreador de Ruido do Bairro\n\nDomínios analisados: digital\n\nLEIS APLICÁVEIS:\n  • Lei nº 14.063/2020 (Congresso Nacional)\n    Assinatura Eletronica\n    Ementa: Dispoe sobre o uso da assinatura eletronica.\n    Artigos: 1, 2, 3, 4, 5\n  • Lei nº 14.133/2021 (Congresso Nacional)\n    Nova Lei de Licitacoes\n    Ementa: Dispoe sobre licitacoes e contratos administrativos.\n    Artigos: 28, 31, 49, 75\n  • Lei nº 13.787/2018 (Congresso Nacional)\n    Documentos Eletronicos\n    Ementa: Dispoe sobre a validade juridica do documento eletronico.\n    Artigos: 1, 2, 3, 6, 8\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\nNão foram encontradas leis específicas que regulem esta ação. Recomenda-se consulta jurídica especializada.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Rastreador de Ruido do Bairro\nDomínios: digital\n\nResumo: 1/3 itens atendidos, 2 pendentes\n\n✓ Conformidades verificadas:\n  • Cadeia de confiança validada\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Assinatura eletrônica qualificada\n    Base legal: Lei 14.063/20 art. 4º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Armazenamento seguro garantido\n    Base legal: Lei 13.787/18\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Rastreador de Ruido do Bairro\n\nPrecedentes encontrados: 2\n\n• STJ (2024) - Validade de assinatura digital\n  Entendimento: Assinatura digital ICP-Brasil tem presunção de autenticidade. Outras assinaturas eletrônicas devem comprovar autenticidade.\n  Relevância: alta\n\n• TJSP (2024) - Nulidade de cláusula de foro online\n  Entendimento: Cláusula de foro exclusivo online pode ser nula quando dificulta acesso do consumidor à justiça.\n  Relevância: media\n\nTENDÊNCIAS JURISPRUDENCIAIS:\n  → Jurisprudência recente (2024-2025) aplicável\n\nConclusão: Jurisprudência favorável ao caso.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Rastreador de Ruido do Bairro\nRiscos identificados: 1\nMulta estimada base: R$ 1,000.00\n\n• [MEDIA] multa (digital): Multa por infração em digital\n\nExposição financeira máxima estimada: R$ 1,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Rastreador de Ruido do Bairro\nAlertas regulatórios: 2\n\n• [ALTO] 14.063/2020: Lei 14.063/2020 (Assinatura eletrônica) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Validar assinaturas eletrônicas conforme Lei nº 14.063/2020\n  2. Realizar pesquisa legislativa mais aprofundada\n  3. Solicitar parecer jurídico externo\n  4. Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)\n  5. Implementar: Armazenamento seguro garantido (Lei 13.787/18)\n  6. Monitorar mudanças de entendimento dos tribunais periodicamente\n  7. Documentar todas as decisões para eventual defesa\n  8. Monitorar mudanças legislativas periodicamente\n  9. Verificar novas regulamentações antes de implementação",
+          "leis_aplicaveis": [
+            {
+              "lei": "14.063/2020",
+              "orgao": "Congresso Nacional",
+              "titulo": "Assinatura Eletronica",
+              "ementa": "Dispoe sobre o uso da assinatura eletronica.",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            },
+            {
+              "lei": "14.133/2021",
+              "orgao": "Congresso Nacional",
+              "titulo": "Nova Lei de Licitacoes",
+              "ementa": "Dispoe sobre licitacoes e contratos administrativos.",
+              "artigos": [
+                "28",
+                "31",
+                "49",
+                "75"
+              ]
+            },
+            {
+              "lei": "13.787/2018",
+              "orgao": "Congresso Nacional",
+              "titulo": "Documentos Eletronicos",
+              "ementa": "Dispoe sobre a validade juridica do documento eletronico.",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "6",
+                "8"
+              ]
+            }
+          ],
+          "recomendacoes": [
+            "Validar assinaturas eletrônicas conforme Lei nº 14.063/2020",
+            "Realizar pesquisa legislativa mais aprofundada",
+            "Solicitar parecer jurídico externo",
+            "Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)",
+            "Implementar: Armazenamento seguro garantido (Lei 13.787/18)",
+            "Monitorar mudanças de entendimento dos tribunais periodicamente",
+            "Documentar todas as decisões para eventual defesa",
+            "Monitorar mudanças legislativas periodicamente",
+            "Verificar novas regulamentações antes de implementação"
+          ],
+          "confianca": 0.95
+        },
+        "agentes_consultados": [
+          "legislator",
+          "compliance",
+          "jurisprudence",
+          "risk_legal",
+          "regulatory"
+        ],
+        "tempo_analise_ms": 0.0
+      },
+      "elapsed_ms": 15.762805938720703
+    },
+    {
+      "request_id": "a83e634d-ac1",
+      "title": "Planejador de Refeicoes com Restricoes Alimentares",
+      "verdict": "APROVADO",
+      "confidence": 0.7275,
+      "responses_count": 4,
+      "agent_responses": [
+        {
+          "agent_id": "sentinel",
+          "verdict": "APROVADO",
+          "reasoning": "Analise de seguranca realizada com 0 indicadores de seguranca e 1 de conformidade.",
+          "risks": [
+            "Aspectos de conformidade detectados: log",
+            "Integracao externa detectada - validar endpoints e autenticacao",
+            "Uso de IA detectado - validar vieses e transparencia"
+          ],
+          "recommendations": [
+            "Verificar conformidade regulatoria antes da implementacao",
+            "Utilizar autenticacao OAuth2/JWT para APIs externas",
+            "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+          ],
+          "confidence": 0.8,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "nexus",
+          "verdict": "APROVADO",
+          "reasoning": "Viabilidade tecnica avaliada. Stack detectado: ['javascript']. 3 riscos identificados.",
+          "risks": [
+            "Tecnologias detectadas: javascript(node)",
+            "Integracao via API detectada - considerar versionamento e rate limiting",
+            "Sistema sem monitoramento especificado - adicionar observabilidade"
+          ],
+          "recommendations": [
+            "Implementar versionamento de API e documentacao OpenAPI",
+            "Implementar stack de observabilidade (metrics, logs, traces)"
+          ],
+          "confidence": 0.65,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "vortex",
+          "verdict": "CONDICIONAL",
+          "reasoning": "Viabilidade de negocio avaliada. Areas detectadas: ['receita', 'mercado', 'risco_financeiro'].",
+          "risks": [
+            "Modelo de receita identificado - validar unit economics",
+            "Analise de mercado necessaria - validar produto-mercado fit",
+            "Aspectos financeiros detectados: orcamento",
+            "Requisito de SLA identificado - impacto em custo e operacao"
+          ],
+          "recommendations": [
+            "Definir KPIs de receita e validar unit economics antes do MVP",
+            "Realizar pesquisa de mercado e entrevistas com clientes potenciais",
+            "Criar projecao financeira com cenarios otimista, base e pessimista",
+            "Definir SLAs realistas com margem de tolerancia"
+          ],
+          "confidence": 0.7500000000000001,
+          "response_time_ms": 0.0
+        },
+        {
+          "agent_id": "apolo",
+          "verdict": "APROVADO",
+          "reasoning": "Avaliacao holistica: complexidade=3/5, componentes=2, prioridade=7/10.",
+          "risks": [
+            "3 restricoes definidas",
+            "Contexto extenso - multiplos fatores a considerar",
+            "Sistema com 2 componentes principais identificados"
+          ],
+          "recommendations": [
+            "Dividir em fases de implementacao para reduzir risco",
+            "Implementar validacao continua com feedback loop",
+            "Definir criterios de sucesso claros e mensuraveis",
+            "Estabelecer processo de revisao periodica"
+          ],
+          "confidence": 0.71,
+          "response_time_ms": 0.0
+        }
+      ],
+      "risks": [
+        "Analise de mercado necessaria - validar produto-mercado fit",
+        "Modelo de receita identificado - validar unit economics",
+        "3 restricoes definidas",
+        "Uso de IA detectado - validar vieses e transparencia",
+        "Contexto extenso - multiplos fatores a considerar",
+        "Aspectos de conformidade detectados: log",
+        "Aspectos financeiros detectados: orcamento",
+        "Sistema sem monitoramento especificado - adicionar observabilidade",
+        "Requisito de SLA identificado - impacto em custo e operacao",
+        "Tecnologias detectadas: javascript(node)",
+        "Sistema com 2 componentes principais identificados",
+        "Integracao via API detectada - considerar versionamento e rate limiting",
+        "Integracao externa detectada - validar endpoints e autenticacao"
+      ],
+      "recommendations": [
+        "Definir KPIs de receita e validar unit economics antes do MVP",
+        "Verificar conformidade regulatoria antes da implementacao",
+        "Utilizar autenticacao OAuth2/JWT para APIs externas",
+        "Definir SLAs realistas com margem de tolerancia",
+        "Criar projecao financeira com cenarios otimista, base e pessimista",
+        "Implementar stack de observabilidade (metrics, logs, traces)",
+        "Estabelecer processo de revisao periodica",
+        "Implementar versionamento de API e documentacao OpenAPI",
+        "Implementar validacao continua com feedback loop",
+        "Dividir em fases de implementacao para reduzir risco",
+        "Definir criterios de sucesso claros e mensuraveis",
+        "Realizar pesquisa de mercado e entrevistas com clientes potenciais",
+        "Documentar uso de IA e implementar mecanismos de auditoria de vieses"
+      ],
+      "weighted_verdicts": {
+        "APROVADO": 2.9996943921434047,
+        "CONDICIONAL": 0.9998987557427841
+      },
+      "legal_analysis": {
+        "request_id": "legal_1787793860_2342",
+        "opinion": {
+          "veredito": "NAO_CONFORME",
+          "risco": "ALTA",
+          "parecer": "PARECER JURÍDICO - Planejador de Refeicoes com Restricoes Alimentares\n\nDomínios analisados: consumidor, digital\n\nLEIS APLICÁVEIS:\n  • Lei nº 8.078/1990 (Congresso Nacional)\n    Codigo de Defesa do Consumidor\n    Ementa: Dispoe sobre a protecao do consumidor.\n    Artigos: 1, 2, 6, 12, 14, 18, 26, 39, 42, 49\n  • Lei nº 14.181/2021 (Congresso Nacional)\n    Credito Responsavel\n    Ementa: Dispoe sobre o credito responsavel ao consumidor.\n    Artigos: 1, 2, 3\n  • Lei nº 14.063/2020 (Congresso Nacional)\n    Assinatura Eletronica\n    Ementa: Dispoe sobre o uso da assinatura eletronica.\n    Artigos: 1, 2, 3, 4, 5\n  • Lei nº 14.133/2021 (Congresso Nacional)\n    Nova Lei de Licitacoes\n    Ementa: Dispoe sobre licitacoes e contratos administrativos.\n    Artigos: 28, 31, 49, 75\n  • Lei nº 13.787/2018 (Congresso Nacional)\n    Documentos Eletronicos\n    Ementa: Dispoe sobre a validade juridica do documento eletronico.\n    Artigos: 1, 2, 3, 6, 8\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\nNão foram encontradas leis específicas que regulem esta ação. Recomenda-se consulta jurídica especializada.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Planejador de Refeicoes com Restricoes Alimentares\nDomínios: consumidor, digital\n\nResumo: 5/8 itens atendidos, 3 pendentes\n\n✓ Conformidades verificadas:\n  • Preço visível e correto\n  • Direito de arrependimento respeitado\n  • Termos de uso claros\n  • Canal de atendimento disponível\n  • Cadeia de confiança validada\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Informações claras sobre produto/serviço\n    Base legal: CDC art. 6º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Assinatura eletrônica qualificada\n    Base legal: Lei 14.063/20 art. 4º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Armazenamento seguro garantido\n    Base legal: Lei 13.787/18\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Planejador de Refeicoes com Restricoes Alimentares\n\nPrecedentes encontrados: 3\n\n• STJ (2024) - Cobrança indevida em apps\n  Entendimento: Aplicativos que cobram valores não previstos claramente praticam prática abusiva (CDC art. 39). Consumidor tem direito à devolução em dobro.\n  Relevância: alta\n\n• STJ (2024) - Validade de assinatura digital\n  Entendimento: Assinatura digital ICP-Brasil tem presunção de autenticidade. Outras assinaturas eletrônicas devem comprovar autenticidade.\n  Relevância: alta\n\n• TJSP (2024) - Nulidade de cláusula de foro online\n  Entendimento: Cláusula de foro exclusivo online pode ser nula quando dificulta acesso do consumidor à justiça.\n  Relevância: media\n\nTENDÊNCIAS JURISPRUDENCIAIS:\n  → Tendência do STJ: 2 decisões favoráveis ao tema\n  → Jurisprudência recente (2024-2025) aplicável\n\nConclusão: Jurisprudência favorável ao caso.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Planejador de Refeicoes com Restricoes Alimentares\nRiscos identificados: 3\nMulta estimada base: R$ 2,000.00\n\n• [MEDIA] multa (consumidor): Multa por infração em consumidor\n• [MEDIA] multa (digital): Multa por infração em digital\n• [MEDIA] exposição (digital): Exposição pública aumenta risco de incidentes\n\nExposição financeira máxima estimada: R$ 2,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Planejador de Refeicoes com Restricoes Alimentares\nAlertas regulatórios: 3\n\n• [MEDIO] 14.181/2021: Lei 14.181/2021 (Crédito responsável) em vigor\n• [ALTO] 14.063/2020: Lei 14.063/2020 (Assinatura eletrônica) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Garantir transparência nas informações ao consumidor\n  2. Validar assinaturas eletrônicas conforme Lei nº 14.063/2020\n  3. Realizar pesquisa legislativa mais aprofundada\n  4. Solicitar parecer jurídico externo\n  5. Implementar: Informações claras sobre produto/serviço (CDC art. 6º)\n  6. Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)\n  7. Implementar: Armazenamento seguro garantido (Lei 13.787/18)\n  8. Revisar material publicitário para transparência\n  9. Verificar canais de atendimento ao consumidor\n  10. Monitorar mudanças de entendimento dos tribunais periodicamente\n  11. Documentar todas as decisões para eventual defesa\n  12. Monitorar mudanças legislativas periodicamente\n  13. Verificar novas regulamentações antes de implementação",
+          "analise": "PARECER JURÍDICO - Planejador de Refeicoes com Restricoes Alimentares\n\nDomínios analisados: consumidor, digital\n\nLEIS APLICÁVEIS:\n  • Lei nº 8.078/1990 (Congresso Nacional)\n    Codigo de Defesa do Consumidor\n    Ementa: Dispoe sobre a protecao do consumidor.\n    Artigos: 1, 2, 6, 12, 14, 18, 26, 39, 42, 49\n  • Lei nº 14.181/2021 (Congresso Nacional)\n    Credito Responsavel\n    Ementa: Dispoe sobre o credito responsavel ao consumidor.\n    Artigos: 1, 2, 3\n  • Lei nº 14.063/2020 (Congresso Nacional)\n    Assinatura Eletronica\n    Ementa: Dispoe sobre o uso da assinatura eletronica.\n    Artigos: 1, 2, 3, 4, 5\n  • Lei nº 14.133/2021 (Congresso Nacional)\n    Nova Lei de Licitacoes\n    Ementa: Dispoe sobre licitacoes e contratos administrativos.\n    Artigos: 28, 31, 49, 75\n  • Lei nº 13.787/2018 (Congresso Nacional)\n    Documentos Eletronicos\n    Ementa: Dispoe sobre a validade juridica do documento eletronico.\n    Artigos: 1, 2, 3, 6, 8\n\nVEREDITO: NAO_CONFORME\nRISCO: ALTA\n\n--- PARECER LEGISLATOR ---\nNão foram encontradas leis específicas que regulem esta ação. Recomenda-se consulta jurídica especializada.\n\n--- PARECER COMPLIANCE ---\n=== PARECER DE COMPLIANCE ===\n\nAnálise: Planejador de Refeicoes com Restricoes Alimentares\nDomínios: consumidor, digital\n\nResumo: 5/8 itens atendidos, 3 pendentes\n\n✓ Conformidades verificadas:\n  • Preço visível e correto\n  • Direito de arrependimento respeitado\n  • Termos de uso claros\n  • Canal de atendimento disponível\n  • Cadeia de confiança validada\n\n✗ GAPS de compliance identificados:\n  • [ALTA] Informações claras sobre produto/serviço\n    Base legal: CDC art. 6º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Assinatura eletrônica qualificada\n    Base legal: Lei 14.063/20 art. 4º\n    Ação necessária: implementar antes de prosseguir\n  • [ALTA] Armazenamento seguro garantido\n    Base legal: Lei 13.787/18\n    Ação necessária: implementar antes de prosseguir\n\nConclusão: Ação requer correções de compliance antes de implementação.\n\n--- PARECER JURISPRUDENCE ---\n=== PARECER DE JURISPRUDÊNCIA ===\n\nAnálise: Planejador de Refeicoes com Restricoes Alimentares\n\nPrecedentes encontrados: 3\n\n• STJ (2024) - Cobrança indevida em apps\n  Entendimento: Aplicativos que cobram valores não previstos claramente praticam prática abusiva (CDC art. 39). Consumidor tem direito à devolução em dobro.\n  Relevância: alta\n\n• STJ (2024) - Validade de assinatura digital\n  Entendimento: Assinatura digital ICP-Brasil tem presunção de autenticidade. Outras assinaturas eletrônicas devem comprovar autenticidade.\n  Relevância: alta\n\n• TJSP (2024) - Nulidade de cláusula de foro online\n  Entendimento: Cláusula de foro exclusivo online pode ser nula quando dificulta acesso do consumidor à justiça.\n  Relevância: media\n\nTENDÊNCIAS JURISPRUDENCIAIS:\n  → Tendência do STJ: 2 decisões favoráveis ao tema\n  → Jurisprudência recente (2024-2025) aplicável\n\nConclusão: Jurisprudência favorável ao caso.\n\n--- PARECER RISK_LEGAL ---\n=== PARECER DE RISCO JURÍDICO ===\n\nAção: Planejador de Refeicoes com Restricoes Alimentares\nRiscos identificados: 3\nMulta estimada base: R$ 2,000.00\n\n• [MEDIA] multa (consumidor): Multa por infração em consumidor\n• [MEDIA] multa (digital): Multa por infração em digital\n• [MEDIA] exposição (digital): Exposição pública aumenta risco de incidentes\n\nExposição financeira máxima estimada: R$ 2,000.00\n\n--- PARECER REGULATORY ---\n=== PARECER REGULATÓRIO ===\n\nAnálise: Planejador de Refeicoes com Restricoes Alimentares\nAlertas regulatórios: 3\n\n• [MEDIO] 14.181/2021: Lei 14.181/2021 (Crédito responsável) em vigor\n• [ALTO] 14.063/2020: Lei 14.063/2020 (Assinatura eletrônica) em vigor\n• [ALTO] Em tramitação: PL 2338/2023 - Marco Legal da IA em tramitação no Congresso\n\nRECOMENDAÇÕES:\n  1. Garantir transparência nas informações ao consumidor\n  2. Validar assinaturas eletrônicas conforme Lei nº 14.063/2020\n  3. Realizar pesquisa legislativa mais aprofundada\n  4. Solicitar parecer jurídico externo\n  5. Implementar: Informações claras sobre produto/serviço (CDC art. 6º)\n  6. Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)\n  7. Implementar: Armazenamento seguro garantido (Lei 13.787/18)\n  8. Revisar material publicitário para transparência\n  9. Verificar canais de atendimento ao consumidor\n  10. Monitorar mudanças de entendimento dos tribunais periodicamente\n  11. Documentar todas as decisões para eventual defesa\n  12. Monitorar mudanças legislativas periodicamente\n  13. Verificar novas regulamentações antes de implementação",
+          "leis_aplicaveis": [
+            {
+              "lei": "8.078/1990",
+              "orgao": "Congresso Nacional",
+              "titulo": "Codigo de Defesa do Consumidor",
+              "ementa": "Dispoe sobre a protecao do consumidor.",
+              "artigos": [
+                "1",
+                "2",
+                "6",
+                "12",
+                "14",
+                "18",
+                "26",
+                "39",
+                "42",
+                "49"
+              ]
+            },
+            {
+              "lei": "14.181/2021",
+              "orgao": "Congresso Nacional",
+              "titulo": "Credito Responsavel",
+              "ementa": "Dispoe sobre o credito responsavel ao consumidor.",
+              "artigos": [
+                "1",
+                "2",
+                "3"
+              ]
+            },
+            {
+              "lei": "14.063/2020",
+              "orgao": "Congresso Nacional",
+              "titulo": "Assinatura Eletronica",
+              "ementa": "Dispoe sobre o uso da assinatura eletronica.",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            },
+            {
+              "lei": "14.133/2021",
+              "orgao": "Congresso Nacional",
+              "titulo": "Nova Lei de Licitacoes",
+              "ementa": "Dispoe sobre licitacoes e contratos administrativos.",
+              "artigos": [
+                "28",
+                "31",
+                "49",
+                "75"
+              ]
+            },
+            {
+              "lei": "13.787/2018",
+              "orgao": "Congresso Nacional",
+              "titulo": "Documentos Eletronicos",
+              "ementa": "Dispoe sobre a validade juridica do documento eletronico.",
+              "artigos": [
+                "1",
+                "2",
+                "3",
+                "6",
+                "8"
+              ]
+            }
+          ],
+          "recomendacoes": [
+            "Garantir transparência nas informações ao consumidor",
+            "Validar assinaturas eletrônicas conforme Lei nº 14.063/2020",
+            "Realizar pesquisa legislativa mais aprofundada",
+            "Solicitar parecer jurídico externo",
+            "Implementar: Informações claras sobre produto/serviço (CDC art. 6º)",
+            "Implementar: Assinatura eletrônica qualificada (Lei 14.063/20 art. 4º)",
+            "Implementar: Armazenamento seguro garantido (Lei 13.787/18)",
+            "Revisar material publicitário para transparência",
+            "Verificar canais de atendimento ao consumidor",
+            "Monitorar mudanças de entendimento dos tribunais periodicamente",
+            "Documentar todas as decisões para eventual defesa",
+            "Monitorar mudanças legislativas periodicamente",
+            "Verificar novas regulamentações antes de implementação"
+          ],
+          "confianca": 0.95
+        },
+        "agentes_consultados": [
+          "legislator",
+          "compliance",
+          "jurisprudence",
+          "risk_legal",
+          "regulatory"
+        ],
+        "tempo_analise_ms": 4.97746467590332
+      },
+      "elapsed_ms": 34.18326377868652
+    }
+  ],
+  "ranking": [
+    {
+      "score": 0.7575000000000001,
+      "title": "Planejador de Refeicoes com Restricoes Alimentares"
+    },
+    {
+      "score": 0.7525000000000001,
+      "title": "Scanner de Notas Fiscais (Foto-Fatura -> Planilha)"
+    },
+    {
+      "score": 0.7475,
+      "title": "Calculadora de MEI com Alertas"
+    },
+    {
+      "score": 0.7400000000000001,
+      "title": "Micro-journaling para Ansiedade"
+    },
+    {
+      "score": 0.7275,
+      "title": "Rastreador de Ruido do Bairro"
+    }
+  ]
+}

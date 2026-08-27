@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-08-26T22:59:09.056678",
+  "api_url": "http://localhost:8081",
+  "qa": {
+    "agent": "QA Agent",
+    "tests_passed": 39,
+    "tests_failed": 0,
+    "issues": []
+  },
+  "performance": {
+    "agent": "Performance Agent",
+    "metrics": [
+      {
+        "test": "Health check",
+        "time_ms": 0.0
+      },
+      {
+        "test": "Calculo DAS",
+        "time_ms": 8.37
+      },
+      {
+        "test": "Simulacao",
+        "time_ms": 0.0
+      },
+      {
+        "test": "Carga 10 req",
+        "time_ms": 258.57,
+        "success": 10
+      },
+      {
+        "test": "Tamanho pagina",
+        "size_kb": 30.54
+      },
+      {
+        "test": "Tamanho CSS",
+        "size_kb": 24.67
+      },
+      {
+        "test": "Tamanho JS",
+        "size_kb": 7.06
+      }
+    ],
+    "issues": []
+  },
+  "logic": {
+    "agent": "Logic Agent",
+    "tests_passed": 15,
+    "tests_failed": 0,
+    "issues": []
+  },
+  "summary": {
+    "total_tests": 54,
+    "passed": 54,
+    "failed": 0,
+    "pass_rate": "100.0%"
+  }
+}

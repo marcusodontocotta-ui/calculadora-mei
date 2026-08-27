@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora MEI - DAS Simplificado | R$ 9,90/mes</title>
+    <meta name="description" content="Calculadora MEI gratuita. Calcule seu DAS, receba alertas de vencimento e simule cenarios. 93% mais barato que contador.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo">
+            <span class="logo-icon">M</span>
+            <span class="logo-text">Calculadora MEI</span>
+        </div>
+        <div class="nav-links">
+            <a href="#como-funciona">Como Funciona</a>
+            <a href="#app">Calcular DAS</a>
+            <a href="#educacao">Aprenda</a>
+            <a href="#comparativo">Comparativo</a>
+            <a href="#precos" class="btn btn-nav">Assinar</a>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-container">
+        <div class="hero-content">
+            <span class="hero-badge">22 milhoes de MEIs no Brasil</span>
+            <h1>Seu DAS simplificado,<br>seus alertas automaticos,<br>seu lucro controlado.</h1>
+            <p class="hero-subtitle">A calculadora MEI que avisa antes do vencimento, simula seus cenarios e economiza R$ 150/mes de contador.</p>
+            <div class="hero-cta">
+                <a href="#app" class="btn btn-primary btn-lg">Comecar Gratis</a>
+                <span class="hero-price">de <s>R$ 149,90</s> por <strong>R$ 9,90/mes</strong></span>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="phone-header">Calculadora MEI</div>
+                    <div class="phone-alert">
+                        <span class="alert-icon">!</span>
+                        <span>FALTAM 7 DIAS</span>
+                    </div>
+                    <div class="phone-value">R$ 150,00</div>
+                    <div class="phone-label">DAS de Agosto</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COMO FUNCIONA - PASSO A PASSO VISUAL -->
+<section class="how-it-works" id="como-funciona">
+    <div class="container">
+        <h2 class="section-title">Como funciona? Em 3 passos simples</h2>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon">$</div>
+                <h3>Digite seu faturamento</h3>
+                <p>Quanto voce faturou este mes? Coloque o valor em reais.</p>
+                <span class="step-time">5 segundos</span>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon">></div>
+                <h3>Veja quanto pagar</h3>
+                <p>A calculadora mostra o valor exato do DAS e quando vence.</p>
+                <span class="step-time">10 segundos</span>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon">!</div>
+                <h3>Receba alertas</h3>
+                <p>Avise antes do vencimento. Nunca mais pague multa.</p>
+                <span class="step-time">Automatico</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- RELOGIO DE EFICIENCIA -->
+<section class="efficiency-section" id="eficiencia">
+    <div class="container">
+        <h2 class="section-title">Está valendo a pena ser MEI?</h2>
+        <p class="section-subtitle">Veja se seu faturamento compensa os custos fixos</p>
+        <div class="efficiency-calculator">
+            <div class="efficiency-inputs">
+                <div class="form-group">
+                    <label>Faturamento mensal (R$)</label>
+                    <input type="number" id="effFat" value="5000" step="100">
+                </div>
+                <div class="form-group">
+                    <label>Custos fixos mensais (R$)</label>
+                    <input type="number" id="effFixos" value="1500" step="100">
+                </div>
+                <button class="btn btn-primary" id="btnEfficiency">Calcular Eficiencia</button>
+            </div>
+            <div class="efficiency-result" id="effResult" style="display:none;">
+                <div class="efficiency-gauge">
+                    <div class="gauge-circle" id="gaugeCircle">
+                        <span class="gauge-value" id="gaugeValue">70%</span>
+                    </div>
+                    <span class="gauge-label">Eficiencia do MEI</span>
+                </div>
+                <div class="efficiency-details">
+                    <div class="eff-item">
+                        <span class="eff-label">Faturamento</span>
+                        <span class="eff-value" id="effFatVal">R$ 5.000</span>
+                    </div>
+                    <div class="eff-item">
+                        <span class="eff-label">Custos Fixos</span>
+                        <span class="eff-value" id="effFixVal">R$ 1.500</span>
+                    </div>
+                    <div class="eff-item">
+                        <span class="eff-label">DAS</span>
+                        <span class="eff-value" id="effDasVal">R$ 150</span>
+                    </div>
+                    <div class="eff-item highlight">
+                        <span class="eff-label">Lucro Liquido</span>
+                        <span class="eff-value" id="effLucroVal">R$ 2.850</span>
+                    </div>
+                </div>
+                <div class="efficiency-verdict" id="effVerdict"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ONDE APARECE O ALERTA PARA MUDAR -->
+<section class="alert-section" id="alerta-mudar">
+    <div class="container">
+        <h2 class="section-title">Quando pensar em outra forma?</h2>
+        <p class="section-subtitle">O MEI e otimo, mas tem hora que nao compensa mais</p>
+        <div class="alert-grid">
+            <div class="alert-card alert-danger">
+                <span class="alert-level">PERIGO</span>
+                <h3>Faturamento passando R$ 81.000/ano</h3>
+                <p>Voce ja esta no teto. Se faturar mais, pode ser desclassificado. Considere virar <strong>ME</strong> ou <strong>LTDa</strong>.</p>
+                <span class="alert-action">Ver alternativas abaixo</span>
+            </div>
+            <div class="alert-card alert-warning">
+                <span class="alert-level">ATENCAO</span>
+                <h3>Precisa de funcionario</h3>
+                <p>MEI nao pode ter funcionario (exceto familiar). Se precisa, mude para <strong>ME</strong>.</p>
+            </div>
+            <div class="alert-card alert-warning">
+                <span class="alert-level">ATENCAO</span>
+                <h3>Vende para empresa grande</h3>
+                <p>Grandes empresas preferem contratar <strong>LTDA</strong> ou <strong>ME</strong> por questao fiscal.</p>
+            </div>
+            <div class="alert-card alert-info">
+                <span class="alert-level">DICA</span>
+                <h3>Lucro liquido caindo</h3>
+                <p>Se seu lucro esta menor que 20% do faturamento, algo esta errado. Use nosso <strong>simulador</strong>.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- O QUE E MEI -->
+<section class="education-section" id="educacao">
+    <div class="container">
+        <h2 class="section-title">Tudo sobre MEI</h2>
+        <p class="section-subtitle">Do basico ao avancado — clique para expandir</p>
+
+        <!-- O QUE E MEI -->
+        <details class="edu-block">
+            <summary class="edu-title">
+                <span class="edu-icon">+</span>
+                O que e MEI?
+            </summary>
+            <div class="edu-content">
+                <div class="edu-simple">
+                    <h4>Na pratica:</h4>
+                    <p><strong>MEI = Microempreendedor Individual</strong></p>
+                    <p>E uma forma de legalizar seu negocio sozinho, com pouco dinheiro e burocracia.</p>
+                    <div class="edu-example">
+                        <strong>Exemplo:</strong> Voce faz bolo em casa e vende. Para legalizar, vira MEI. Agora pode emitir nota fiscal, ter conta PJ e emprestar mais tranquilo.
+                    </div>
+                </div>
+                <div class="edu-advanced">
+                    <h4>Na lei:</h4>
+                    <p>Regulado pela <strong>Lei Complementar 128/2008</strong>. O MEI e optante pelo Simples Nacional com faturamento ate R$ 81.000/ano (2025). CNAE principal deve ser compativel com atividade individual.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- VANTAGENS -->
+        <details class="edu-block">
+            <summary class="edu-title">
+                <span class="edu-icon">+</span>
+                Vantagens de ser MEI
+            </summary>
+            <div class="edu-content">
+                <div class="edu-simple">
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>Vantagens</h4>
+                            <ul>
+                                <li>DAS fixo (R$ 150/mes) — previsibilidade</li>
+                                <li>Pode emitir nota fiscal</li>
+                                <li>Conta bancaria PJ</li>
+                                <li>Emprestimo facilitado</li>
+                                <li>Plano de saude pelo Subsidio</li>
+                                <li>Bolsa familia sem perder direito</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="edu-advanced">
+                    <h4>Detalhes tecnicos:</h4>
+                    <ul>
+                        <li>Isencao de IRPF sobre faturamento</li>
+                        <li>Crédito de ICMS/ISS (depende do estado)</li>
+                        <li>13o salario incluso no DAS</li>
+                        <li>Aposentadoria por tempo de contribuicao</li>
+                        <li>Isencao de taxas de low registry em compras</li>
+                    </ul>
+                </div>
+            </div>
+        </details>
+
+        <!-- DESVANTAGENS -->
+        <details class="edu-block">
+            <summary class="edu-title">
+                <span class="edu-icon">+</span>
+                Desvantagens de ser MEI
+            </summary>
+            <div class="edu-content">
+                <div class="edu-simple">
+                    <div class="pros-cons">
+                        <div class="cons">
+                            <h4>Desvantagens</h4>
+                            <ul>
+                                <li>Nao pode ter funcionario (exceto familiar)</li>
+                                <li>Faturamento limitado a R$ 81.000/ano</li>
+                                <li>Nao pode ser socio de outra empresa</li>
+                                <li>Limite de 1 atividade principal + 15 secundarias</li>
+                                <li>Nao pode importar</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="edu-advanced">
+                    <h4>Implicacoes:</h4>
+                    <ul>
+                        <li>Se faturar mais, sera desclassificado e pagara tributos retroativos</li>
+                        <li>Nao pode participar de licitacoes publicas</li>
+                        <li>Limite de R$ 6.750/mes para emissao de NF-e</li>
+                        <li>Restricao em contratos com grandes empresas</li>
+                    </ul>
+                </div>
+            </div>
+        </details>
+
+        <!-- REGRAS -->
+        <details class="edu-block">
+            <summary class="edu-title">
+                <span class="edu-icon">+</span>
+                Regras que regem o MEI
+            </summary>
+            <div class="edu-content">
+                <div class="edu-simple">
+                    <h4>Regras basicas:</h4>
+                    <ol>
+                        <li><strong>Faturamento:</strong> Maximo R$ 81.000/ano (R$ 6.750/mes)</li>
+                        <li><strong>Atividade:</strong> 1 principal + ate 15 secundarias</li>
+                        <li><strong>Funcionarios:</strong> Nao pode ter (exceto familiar)</li>
+                        <li><strong>Pagamento:</strong> DAS ate dia 20 de cada mes</li>
+                        <li><strong>ANEXO:</strong> Declaração anual (DASN-SIMEI) ate maio</li>
+                    </ol>
+                </div>
+                <div class="edu-advanced">
+                    <h4>Base legal:</h4>
+                    <ul>
+                        <li><strong>Lei 12.846/2013</strong> — Cria o MEI</li>
+                        <li><strong>Lei 14.848/2024</strong> — Atualiza valores 2025</li>
+                        <li><strong>Lei Complementar 123/2006</strong> — Simples Nacional</li>
+                        <li><strong>Portaria Conjunta RFB/SEBRAE</strong> — Regulamentacao</li>
+                    </ul>
+                </div>
+            </div>
+        </details>
+
+        <!-- ALTERNATIVAS -->
+        <details class="edu-block">
+            <summary class="edu-title">
+                <span class="edu-icon">+</span>
+                Alternativas ao MEI
+            </summary>
+            <div class="edu-content">
+                <div class="edu-table-responsive">
+                    <table class="edu-table">
+                        <thead>
+                            <tr>
+                                <th>Formato</th>
+                                <th>Faturamento</th>
+                                <th>Funcionario</th>
+                                <th>Impostos</th>
+                                <th>Quando usar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="row-highlight">
+                                <td><strong>MEI</strong></td>
+                                <td>Ate R$ 81k/ano</td>
+                                <td>Nao (familiar sim)</td>
+                                <td>R$ 150/mes fixo</td>
+                                <td>Inicio de atividade, baixo faturamento</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ME (Simples)</strong></td>
+                                <td>Ate R$ 4.8M/ano</td>
+                                <td>Sim</td>
+                                <td>6% a 33% (faixas)</td>
+                                <td>Crescimento, precisa de equipe</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LTDa</strong></td>
+                                <td>Sem limite</td>
+                                <td>Sim</td>
+                                <td>Lucro real ou presumido</td>
+                                <td>Grandes contratos, socios, importacao</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EIRELI</strong></td>
+                                <td>Sem limite</td>
+                                <td>Sim</td>
+                                <td>Lucro real ou presumido</td>
+                                <td>Empresario individual com capital alto</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="edu-example">
+                    <strong>Dica:</strong> Se voce fatura mais de R$ 6.750/mes consistentemente, considere migrar para ME. O imposto pode ser menor dependendo do seu lucro.
+                </div>
+            </div>
+        </details>
+    </div>
+</section>
+
+<!-- COMO USAR A CALCULADORA -->
+<section class="tutorial-section" id="tutorial">
+    <div class="container">
+        <h2 class="section-title">Como usar a Calculadora</h2>
+        <div class="tutorial-grid">
+            <div class="tutorial-card">
+                <div class="tutorial-step">1</div>
+                <h3>Escolha o mes e ano</h3>
+                <p>Selecione para qual periodo quer calcular. Pode ser o mes atual ou projetar o proximo.</p>
+                <div class="tutorial-tip">Dica: Use para planejar o ano inteiro!</div>
+            </div>
+            <div class="tutorial-card">
+                <div class="tutorial-step">2</div>
+                <h3>Coloque o faturamento</h3>
+                <p>Quanto voce faturou (recebeu) neste mes. Nao desconte custos — coloque o valor bruto.</p>
+                <div class="tutorial-tip">Dica: Use o valor das notas fiscais emitidas.</div>
+            </div>
+            <div class="tutorial-card">
+                <div class="tutorial-step">3</div>
+                <h3>Selecione a atividade</h3>
+                <p><strong>Servico:</strong> Consultoria, design, aulas, etc.<br>
+                   <strong>Comercio:</strong> Loja, revenda, produto.<br>
+                   <strong>Misto:</strong> Servico + Comercio juntos.</p>
+                <div class="tutorial-tip">Dica: Se duvida, escolha "Servico".</div>
+            </div>
+            <div class="tutorial-card">
+                <div class="tutorial-step">4</div>
+                <h3>Veja o resultado</h3>
+                <p>A calculadora mostra:<br>
+                   - Valor do DAS<br>
+                   - Data de vencimento<br>
+                   - Se esta no teto<br>
+                   - Se pode emitir NF-e</p>
+                <div class="tutorial-tip">Dica: Anote o valor e pague ate dia 20!</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MEUS GANHOS -->
+<section class="earnings-section" id="ganhos">
+    <div class="container">
+        <h2 class="section-title">Meus Ganhos</h2>
+        <p class="section-subtitle">Registre vendas, cadastre produtos e veja seu lucro real</p>
+
+        <!-- Tabs internas -->
+        <div class="earnings-tabs">
+            <button class="earnings-tab active" data-earningstab="produtos">
+                <span class="tab-icon">*</span> Produtos
+            </button>
+            <button class="earnings-tab" data-earningstab="vendas">
+                <span class="tab-icon">$</span> Vendas
+            </button>
+            <button class="earnings-tab" data-earningstab="despesas">
+                <span class="tab-icon">-</span> Despesas
+            </button>
+            <button class="earnings-tab" data-earningstab="resumo">
+                <span class="tab-icon">#</span> Resumo
+            </button>
+            <button class="earnings-tab" data-earningstab="anual">
+                <span class="tab-icon">!</span> Limite Anual
+            </button>
+            <button class="earnings-tab" data-earningstab="clientes">
+                <span class="tab-icon">@</span> Clientes
+            </button>
+        </div>
+
+        <!-- Tab: Produtos -->
+        <div class="earnings-content active" id="earningstab-produtos">
+            <div class="form-card">
+                <h3>Cadastrar Produto/Servico</h3>
+                <p class="form-desc">Cadastre seus produtos uma vez e selecione na hora de registrar a venda.</p>
+                <form id="formProduto">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome do Produto/Servico *</label>
+                            <input type="text" id="prodNome" placeholder="Ex: Bolo de cenoura" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Preco Unitario (R$) *</label>
+                            <input type="number" id="prodPreco" step="0.01" min="0.01" placeholder="0,00" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="prodCategoria">
+                                <option value="produto">Produto</option>
+                                <option value="servico">Servico</option>
+                                <option value="insumo">Insumo/Materia-prima</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Unidade</label>
+                            <select id="prodUnidade">
+                                <option value="un">Unidade (un)</option>
+                                <option value="kg">Quilograma (kg)</option>
+                                <option value="lt">Litro (lt)</option>
+                                <option value="mt">Metro (mt)</option>
+                                <option value="cx">Caixa (cx)</option>
+                                <option value="par">Par</option>
+                                <option value="dz">Duzia (dz)</option>
+                                <option value="pc">Peca (pc)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data de fabricacao</label>
+                            <input type="date" id="prodFabricacao">
+                        </div>
+                        <div class="form-group">
+                            <label>Data de validade</label>
+                            <input type="date" id="prodValidade">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Codigo de barras (opcional)</label>
+                            <input type="text" id="prodCodigo" placeholder="7891234567890">
+                            <button type="button" class="btn btn-action-inline" id="btnScanBarcode">Escanear codigo</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantidade em estoque</label>
+                            <input type="number" id="prodEstoque" value="0" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Link da foto do produto</label>
+                            <input type="url" id="prodFoto" placeholder="Cole o link aqui (ex: www.fotos.com/bolo.jpg)">
+                            <small class="form-hint">Se nao tiver link, pode deixar em branco</small>
+                            <button type="button" class="btn btn-action-inline" id="btnTakePhoto">Tirar foto</button>
+                            <div id="fotoPreviewContainer" class="foto-preview-container" style="display:none;">
+                                <img id="fotoPreview" class="foto-preview-img" alt="Preview">
+                                <button type="button" class="btn-remove-preview" id="btnRemovePreview">X</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Observacoes</label>
+                            <input type="text" id="prodDescricao" placeholder="Detalhes adicionais">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar produto</button>
+                </form>
+            </div>
+
+            <!-- Lista de Produtos -->
+            <div class="form-card">
+                <h3>Produtos Cadastrados</h3>
+                <div id="listaProdutos" class="products-grid">
+                    <p class="empty-state">Nenhum produto cadastrado ainda.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Vendas -->
+        <div class="earnings-content" id="earningstab-vendas">
+            <div class="form-card">
+                <h3>Registrar Venda</h3>
+                <form id="formVenda">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Produto</label>
+                            <select id="venProduto">
+                                <option value="">Selecione um produto...</option>
+                            </select>
+                            <small class="form-hint">Ou preencha manualmente abaixo</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Data da Venda</label>
+                            <input type="date" id="venData">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Descricao</label>
+                            <input type="text" id="venDescricao" placeholder="Descricao da venda" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <select id="venCliente">
+                                <option value="">Cliente nao cadastrado</option>
+                            </select>
+                            <small class="form-hint">Ou cadastre na aba Meus Clientes</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Valor Unitario (R$)</label>
+                            <input type="number" id="venValor" step="0.01" min="0.01" placeholder="0,00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantidade</label>
+                            <input type="number" id="venQuantidade" value="1" min="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Valor Total</label>
+                            <input type="text" id="venTotal" readonly class="readonly-field" value="R$ 0,00">
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:flex-end;">
+                            <button type="submit" class="btn btn-primary">Registrar Venda</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Lista de Vendas do Mes -->
+            <div class="form-card">
+                <h3>Vendas do Mes</h3>
+                <div id="listaVendas" class="vendas-list">
+                    <p class="empty-state">Nenhuma venda registrada este mes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Resumo -->
+        <div class="earnings-content" id="earningstab-resumo">
+            <div class="dashboard" id="resumoDashboard">
+                <div class="card card-info">
+                    <div class="card-icon">$</div>
+                    <div class="card-content">
+                        <h3>Total Vendas</h3>
+                        <p class="card-value" id="resVendas">R$ 0,00</p>
+                        <p class="card-sub" id="resQtdVendas">0 vendas</p>
+                    </div>
+                </div>
+                <div class="card card-info">
+                    <div class="card-icon">-</div>
+                    <div class="card-content">
+                        <h3>Total Despesas</h3>
+                        <p class="card-value" id="resDespesas">R$ 0,00</p>
+                        <p class="card-sub">Custos do mes</p>
+                    </div>
+                </div>
+                <div class="card card-info">
+                    <div class="card-icon">!</div>
+                    <div class="card-content">
+                        <h3>DAS</h3>
+                        <p class="card-value" id="resDas">R$ 0,00</p>
+                        <p class="card-sub" id="resDasVenc">Vence dia 20</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lucro -->
+            <div class="resultado" id="resultadoLucro">
+                <div class="resultado-grid">
+                    <div class="resultado-item">
+                        <span class="label">Lucro Bruto</span>
+                        <span class="value" id="resLucroBruto">R$ 0,00</span>
+                    </div>
+                    <div class="resultado-item">
+                        <span class="label">Lucro Liquido</span>
+                        <span class="value" id="resLucroLiquido">R$ 0,00</span>
+                    </div>
+                    <div class="resultado-item highlight">
+                        <span class="label">Margem de Lucro</span>
+                        <span class="value" id="resMargem">0%</span>
+                    </div>
+                    <div class="resultado-item">
+                        <span class="label">Eficiencia</span>
+                        <span class="value" id="resEficiencia">-</span>
+                    </div>
+                </div>
+                <div class="alert-box" id="resStatus" style="display:none;">
+                    <span id="resStatusIcon"></span>
+                    <span id="resStatusText"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Despesas -->
+        <div class="earnings-content" id="earningstab-despesas">
+            <div class="form-card">
+                <h3>Suas Despesas</h3>
+                <p class="form-desc">Anote o que voce gasta por mes para saber seu lucro de verdade.</p>
+                <form id="formDespesa">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>O que voce pagou? *</label>
+                            <input type="text" id="despDescricao" placeholder="Ex: Aluguel, Internet, Material" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (R$) *</label>
+                            <input type="number" id="despValor" step="0.01" min="0.01" placeholder="0,00" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data da despesa</label>
+                            <input type="date" id="despData">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de despesa</label>
+                            <select id="despCategoria">
+                                <option value="fixa">Fixa (todo mes)</option>
+                                <option value="variavel">Variavel (muda todo mes)</option>
+                                <option value="material">Material / Materia-prima</option>
+                                <option value="transporte">Transporte / Frete</option>
+                                <option value="servico">Servicos (contador, advogado, etc.)</option>
+                                <option value="imposto">Impostos / Taxas</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Adicionar despesa</button>
+                </form>
+            </div>
+
+            <!-- Lista de Despesas -->
+            <div class="form-card">
+                <h3>Despesas do Mes</h3>
+                <div class="despesas-filtro">
+                    <select id="filtroDespesaMes" onchange="carregarDespesas()">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Marco</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7" selected>Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                    <span id="totalDespesasMes" class="despesas-total">R$ 0,00</span>
+                </div>
+                <div id="listaDespesas">
+                    <p class="empty-state">Nenhuma despesa registrada este mes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Limite Anual -->
+        <div class="earnings-content" id="earningstab-anual">
+            <div class="form-card">
+                <h3>Quanto voce ja faturou em 2025?</h3>
+                <p class="form-desc">Veja se esta perto do limite de R$ 81 mil. Se passar, pode perder o beneficio do MEI.</p>
+
+                <div class="limite-anual-container">
+                    <div class="limite-info">
+                        <div class="limite-item">
+                            <span class="limite-label">Voce ja faturou</span>
+                            <span class="limite-valor" id="faturamentoAnual">R$ 0,00</span>
+                        </div>
+                        <div class="limite-item">
+                            <span class="limite-label">Limite do MEI</span>
+                            <span class="limite-valor limite-teto">R$ 81.000,00</span>
+                        </div>
+                        <div class="limite-item">
+                            <span class="limite-label">Quanto falta</span>
+                            <span class="limite-valor" id="restanteAnual">R$ 81.000,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Barra de progresso -->
+                    <div class="limite-barra-container">
+                        <div class="limite-barra">
+                            <div class="limite-barra-preenchida" id="barraAnual" style="width: 0%"></div>
+                        </div>
+                        <div class="limite-porcentagem" id="porcentagemAnual">0%</div>
+                    </div>
+
+                    <!-- Alertas automaticos -->
+                    <div class="limite-alertas" id="alertasAnual">
+                        <!-- Preenchido via JS -->
+                    </div>
+
+                    <!-- Historico mensal -->
+                    <div class="historico-mensal">
+                        <h4>Faturamento mes a mes</h4>
+                        <div id="historicoMensal">
+                            <!-- Preenchido via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Clientes -->
+        <div class="earnings-content" id="earningstab-clientes">
+            <div class="form-card">
+                <h3>Cadastrar Cliente</h3>
+                <p class="form-desc">Registre seus clientes para acompanhar quem compra mais e mandar parabens no aniversario.</p>
+                <form id="formCliente">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome *</label>
+                            <input type="text" id="cliNome" placeholder="Nome do cliente" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone / WhatsApp</label>
+                            <input type="tel" id="cliTelefone" placeholder="(11) 99999-9999">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" id="cliEmail" placeholder="cliente@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Aniversario</label>
+                            <input type="date" id="cliAniversario">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Produto preferido</label>
+                            <input type="text" id="cliProduto" placeholder="Ex: Bolo de chocolate">
+                        </div>
+                        <div class="form-group">
+                            <label>Frequencia de compra</label>
+                            <select id="cliPeriodicidade">
+                                <option value="">Selecione...</option>
+                                <option value="diario">Diario</option>
+                                <option value="semanal">Semanal</option>
+                                <option value="quinzenal">Quinzenal</option>
+                                <option value="mensal">Mensal</option>
+                                <option value="avulso">Avulso / Especial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Endereco</label>
+                        <input type="text" id="cliEndereco" placeholder="Rua, numero, bairro">
+                    </div>
+                    <div class="form-group">
+                        <label>Observacoes</label>
+                        <textarea id="cliObservacoes" rows="2" placeholder="Ex: Gosta de chocolate, prefere entrega a noite..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar cliente</button>
+                </form>
+            </div>
+
+            <div class="form-card" id="cardAniversarios" style="display:none;">
+                <h3>Aniversariantes do Mes</h3>
+                <div id="listaAniversarios"></div>
+            </div>
+
+            <div class="form-card">
+                <h3>Seus Clientes</h3>
+                <div class="busca-clientes">
+                    <input type="text" id="buscaCliente" placeholder="Buscar por nome..." oninput="buscarClientes()">
+                </div>
+                <div id="listaClientes">
+                    <p class="empty-state">Nenhum cliente cadastrado ainda.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DOR -->
+<section class="pain-section" id="dor">
+    <div class="container">
+        <h2 class="section-title">Voce se identifica?</h2>
+        <div class="pain-grid">
+            <div class="pain-card">
+                <span class="pain-icon">?</span>
+                <h3>"Estou pagando certo?"</h3>
+                <p>Medo de errar o valor do DAS e ser multado</p>
+            </div>
+            <div class="pain-card">
+                <span class="pain-icon">!</span>
+                <h3>"Esqueci o vencimento!"</h3>
+                <p>Multa de 2% ao dia por atraso no pagamento</p>
+            </div>
+            <div class="pain-card">
+                <span class="pain-icon">...</span>
+                <h3>"Posso emitir NF-e?"</h3>
+                <p>Duvida se esta dentro do teto de faturamento</p>
+            </div>
+            <div class="pain-card">
+                <span class="pain-icon">$</span>
+                <h3>"Contador e caro"</h3>
+                <p>R$ 150-300/mes so pra saber o valor do DAS</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COMPARATIVO -->
+<section class="comparison-section" id="comparativo">
+    <div class="container">
+        <h2 class="section-title">Por que escolher a gente?</h2>
+        <div class="comparison-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Calculadora</th>
+                        <th>Custo</th>
+                        <th>Alertas</th>
+                        <th>Simulador</th>
+                        <th>Foco MEI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row-highlight">
+                        <td><strong>Nosso App</strong></td>
+                        <td><span class="price-tag">R$ 9,90/mes</span></td>
+                        <td><span class="check">SIM</span></td>
+                        <td><span class="check">SIM</span></td>
+                        <td><span class="check">SIM</span></td>
+                    </tr>
+                    <tr>
+                        <td>Sebrae (gratuito)</td>
+                        <td>Gratis</td>
+                        <td><span class="cross">NAO</span></td>
+                        <td><span class="cross">NAO</span></td>
+                        <td><span class="partial">Parcial</span></td>
+                    </tr>
+                    <tr>
+                        <td>Apps genericos</td>
+                        <td>R$ 15-30/mes</td>
+                        <td><span class="partial">Basico</span></td>
+                        <td><span class="cross">NAO</span></td>
+                        <td><span class="cross">NAO</span></td>
+                    </tr>
+                    <tr>
+                        <td>Contador</td>
+                        <td>R$ 150-300/mes</td>
+                        <td><span class="partial">Manual</span></td>
+                        <td><span class="cross">NAO</span></td>
+                        <td><span class="check">SIM</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="comparison-highlight">
+            <p><strong>Economia de 93%</strong> comparado a um contador. R$ 150/mes vs R$ 9,90/mes.</p>
+        </div>
+    </div>
+</section>
+
+<!-- APP - CALCULADORA -->
+<section class="app-section" id="app">
+    <div class="container">
+        <h2 class="section-title">Teste agora mesmo</h2>
+        <p class="section-subtitle">Calcule seu DAS em 30 segundos. Sem cadastro.</p>
+
+        <div class="dashboard" id="dashboard">
+            <div class="card card-info">
+                <div class="card-icon">R$</div>
+                <div class="card-content">
+                    <h3>Teto Anual</h3>
+                    <p class="card-value" id="tetoAnual">R$ 81.000,00</p>
+                    <p class="card-sub">Faturamento maximo MEI 2025</p>
+                </div>
+            </div>
+            <div class="card card-info">
+                <div class="card-icon">/12</div>
+                <div class="card-content">
+                    <h3>Teto Mensal</h3>
+                    <p class="card-value" id="tetoMensal">R$ 6.750,00</p>
+                    <p class="card-sub">Limite para emissao de NF-e</p>
+                </div>
+            </div>
+            <div class="card card-alert" id="cardAlerta">
+                <div class="card-icon">!</div>
+                <div class="card-content">
+                    <h3>Vencimento DAS</h3>
+                    <p class="card-value" id="alertaValor">dia 20</p>
+                    <p class="card-sub" id="alertaSub">de cada mes</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2>Calcule seu DAS Mensal</h2>
+            <form id="formDAS">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="mes">Mes</label>
+                        <select id="mes" required>
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Marco</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ano">Ano</label>
+                        <input type="number" id="ano" value="2025" min="2020" max="2030" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="faturamento">Faturamento do Mes (R$)</label>
+                        <input type="number" id="faturamento" placeholder="0,00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoAtividade">Tipo de Atividade</label>
+                        <select id="tipoAtividade">
+                            <option value="servico">Servico</option>
+                            <option value="comercio">Comercio</option>
+                            <option value="misto">Misto (Servico + Comercio)</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Calcular DAS</button>
+            </form>
+        </div>
+
+        <div class="resultado" id="resultadoDAS" style="display: none;">
+            <h2>Resultado do Calculo</h2>
+            <div class="resultado-grid">
+                <div class="resultado-item">
+                    <span class="label">INSS (Previdencia)</span>
+                    <span class="value" id="resINSS">R$ 75,00</span>
+                </div>
+                <div class="resultado-item">
+                    <span class="label" id="lblICMS_ISS">ICMS/ISS</span>
+                    <span class="value" id="resICMS_ISS">R$ 75,00</span>
+                </div>
+                <div class="resultado-item highlight">
+                    <span class="label">TOTAL DAS</span>
+                    <span class="value" id="resTotal">R$ 150,00</span>
+                </div>
+                <div class="resultado-item">
+                    <span class="label">Vencimento</span>
+                    <span class="value" id="resVencimento">dia 20</span>
+                </div>
+                <div class="resultado-item">
+                    <span class="label">Dias para vencer</span>
+                    <span class="value" id="resDias">--</span>
+                </div>
+                <div class="resultado-item">
+                    <span class="label">Dentro do teto?</span>
+                    <span class="value" id="resTeto">--</span>
+                </div>
+                <div class="resultado-item">
+                    <span class="label">Pode emitir NF-e?</span>
+                    <span class="value" id="resNFE">--</span>
+                </div>
+            </div>
+            <div class="alert-box" id="alertaCalculo" style="display: none;">
+                <span id="alertaCalculoIcon"></span>
+                <span id="alertaCalculoText"></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRECOS -->
+<section class="pricing-section" id="precos">
+    <div class="container">
+        <h2 class="section-title">Comece Gratis. Pague so se precisar.</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Gratis</h3>
+                <div class="price">R$ 0</div>
+                <p class="price-period">para sempre</p>
+                <ul class="pricing-features">
+                    <li>Calculo do DAS</li>
+                    <li>Tabela DAS 2025</li>
+                    <li>1 simulacao por dia</li>
+                </ul>
+                <a href="#app" class="btn btn-outline">Comecar Gratis</a>
+            </div>
+            <div class="pricing-card pricing-popular">
+                <span class="popular-badge">Mais popular</span>
+                <h3>PRO</h3>
+                <div class="price">R$ 9,90</div>
+                <p class="price-period">por mes</p>
+                <ul class="pricing-features">
+                    <li>Tudo do Gratis</li>
+                    <li>Alertas automaticos</li>
+                    <li>Simulacoes ilimitadas</li>
+                    <li>Historico de pagamentos</li>
+                    <li>Suporte prioritario</li>
+                </ul>
+                <a href="#app" class="btn btn-primary">Assinar PRO</a>
+            </div>
+            <div class="pricing-card">
+                <h3>Contador</h3>
+                <div class="price">R$ 150+</div>
+                <p class="price-period">por mes</p>
+                <ul class="pricing-features">
+                    <li>O que um contador faz</li>
+                    <li>Consultoria personalizada</li>
+                    <li>Declaracao de impostos</li>
+                </ul>
+                <span class="btn btn-disabled">Continuar com contador</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PLANO PRO -->
+<section class="pro-section" id="plano-pro">
+    <div class="container">
+        <div class="pro-card">
+            <div class="pro-badge">PRO</div>
+            <h2>Desbloqueie todo o potencial do seu MEI</h2>
+            <p class="pro-subtitle">Acesso ilimitado a todas as funcionalidades por apenas R$ 9,90/mes</p>
+            
+            <div class="pro-features">
+                <div class="pro-feature">
+                    <span class="pro-check">*</span>
+                    <span>Relatorios mensais e anuais completos</span>
+                </div>
+                <div class="pro-feature">
+                    <span class="pro-check">*</span>
+                    <span>Alertas de validade de produtos</span>
+                </div>
+                <div class="pro-feature">
+                    <span class="pro-check">*</span>
+                    <span>CRM com lembretes de aniversario</span>
+                </div>
+                <div class="pro-feature">
+                    <span class="pro-check">*</span>
+                    <span>Registro ilimitado de produtos e vendas</span>
+                </div>
+                <div class="pro-feature">
+                    <span class="pro-check">*</span>
+                    <span>Exportacao de dados (PDF/CSV)</span>
+                </div>
+                <div class="pro-feature">
+                    <span class="pro-check">*</span>
+                    <span>Suporte prioritario via WhatsApp</span>
+                </div>
+            </div>
+
+            <div class="pro-price">
+                <span class="pro-valor">R$ 9,90</span>
+                <span class="pro-periodo">/mes</span>
+            </div>
+
+            <div id="proCheckoutForm" class="pro-checkout">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Seu nome</label>
+                        <input type="text" id="proNome" placeholder="Nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Seu e-mail</label>
+                        <input type="email" id="proEmail" placeholder="email@exemplo.com" required>
+                    </div>
+                </div>
+                <button id="btnAssinar" class="btn btn-primary btn-pro" onclick="iniciarAssinatura()">
+                    Assinar agora - R$ 9,90/mes
+                </button>
+                <p class="pro-legal">Pagamento seguro via Mercado Pago. Cancele quando quiser.</p>
+            </div>
+
+            <div id="proStatus" style="display:none;">
+                <div class="pro-status-ativo">
+                    <span class="pro-check">!</span>
+                    <span>Seu plano PRO esta ativo!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+    <div class="container">
+        <h2 class="section-title">Perguntas Frequentes</h2>
+        <div class="faq-grid">
+            <details class="faq-item">
+                <summary>Como funciona o DAS?</summary>
+                <p>O DAS (Documento de Arrecadacao do Simples Nacional) e um boleto unico que reune todos os impostos do MEI. Voce paga um valor fixo mensal.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Quanto custa o DAS?</summary>
+                <p>Servicos: R$ 150/mes. Comercio: R$ 150/mes. Misto: R$ 225/mes.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Quando vence o DAS?</summary>
+                <p>Dia 20 de cada mes. Se cair em dia util, antecipa.</p>
+            </details>
+            <details class="faq-item">
+                <summary>O que acontece se atrasar?</summary>
+                <p>Multa de 2% ao dia + juros de 1% ao mes. Quanto mais atrasar, mais caro fica.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Preciso de contador?</summary>
+                <p>Nao e obrigatorio, mas e recomendado para orientacao.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Posso cancelar quando quiser?</summary>
+                <p>Sim. Sem multa, sem burocracia.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+    <div class="container">
+        <h2>Pronto pra simplificar seu DAS?</h2>
+        <p>Comece gratis. Sem cadastro. Sem compromisso.</p>
+        <a href="#app" class="btn btn-primary btn-lg">Comecar Agora</a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-icon">M</span>
+                <span class="logo-text">Calculadora MEI</span>
+            </div>
+            <div class="footer-links">
+                <a href="#">Termos de Uso</a>
+                <a href="#">Politica de Privacidade</a>
+                <a href="#">Contato</a>
+            </div>
+        </div>
+        <p class="footer-disclaimer">Valores baseados na legislacao vigente (Lei 12.846/2013 e Lei 14.848/2024). Consulte um contador para orientacao especifica.</p>
+        <p class="footer-copy">2025 Calculadora MEI. Todos os direitos reservados.</p>
+    </div>
+</footer>
+
+<div class="modal-overlay" id="cameraModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Tirar Foto do Produto</h3>
+            <button class="modal-close" id="btnCloseCamera">&times;</button>
+        </div>
+        <div class="modal-body">
+            <video id="cameraVideo" class="camera-video" autoplay playsinline></video>
+            <canvas id="cameraCanvas" style="display:none;"></canvas>
+            <div class="camera-controls">
+                <button type="button" class="btn btn-primary" id="btnCapturePhoto">Capturar</button>
+                <button type="button" class="btn btn-outline" id="btnCancelCamera">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="scannerModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Escanear Codigo de Barras</h3>
+            <button class="modal-close" id="btnCloseScanner">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="scannerReader" class="scanner-reader"></div>
+            <div class="scanner-feedback" id="scannerFeedback" style="display:none;">
+                <span class="scanner-check">+</span>
+                <span id="scannerFeedbackText">Codigo detectado!</span>
+            </div>
+            <div class="camera-controls">
+                <button type="button" class="btn btn-outline" id="btnStopScanner">Fechar Scanner</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

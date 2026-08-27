@@ -1,0 +1,15 @@
+__pycache__
+*.pyc
+.pytest_cache
+.git
+.gitignore
+.env
+.env.example
+*.md
+tests/
+test_*.py
+logs/
+sandbox/
+workflows/
+.vscode/
+.idea/

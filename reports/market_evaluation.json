@@ -1,0 +1,160 @@
+{
+  "timestamp": "2026-08-26T23:05:47.752127",
+  "market": {
+    "agent": "Market Evaluation Agent",
+    "score": 98,
+    "max_score": 100,
+    "findings": [
+      {
+        "category": "Publico",
+        "finding": "22M de MEIs no Brasil - mercado massivo"
+      },
+      {
+        "category": "Publico",
+        "finding": "Dor real: medo de multa, duvidas constantes"
+      },
+      {
+        "category": "Publico",
+        "finding": "Baixa escolaridade media - linguagem simples necessaria"
+      },
+      {
+        "category": "Concorrencia",
+        "finding": "Sebrae gratuito mas sem alertas/simulador"
+      },
+      {
+        "category": "Concorrencia",
+        "finding": "Apps genericos(R$15-30) sem foco MEI"
+      },
+      {
+        "category": "Concorrencia",
+        "finding": "Contador(R$150+) caro para servico simples"
+      },
+      {
+        "category": "Concorrencia",
+        "finding": "Nenhum app dominante no nicho"
+      },
+      {
+        "category": "Valor",
+        "finding": "R$9,90/mes = 93% mais barato que contador"
+      },
+      {
+        "category": "Valor",
+        "finding": "Solucao completa: calculo + alertas + simulador"
+      },
+      {
+        "category": "Valor",
+        "finding": "Atualizacao automatica da legislacao"
+      },
+      {
+        "category": "Timing",
+        "finding": "Lei 14.848/2024 atualizou valores em 2025"
+      },
+      {
+        "category": "Timing",
+        "finding": "Crescimento de MEIs acelerado pos-pandemia"
+      }
+    ],
+    "verdict": "APROVADO"
+  },
+  "financial": {
+    "agent": "Financial Agent",
+    "score": 100,
+    "max_score": 100,
+    "analysis": {
+      "modelo": {
+        "gratis": {
+          "preco": 0,
+          "features": [
+            "Calculo DAS",
+            "Tabela",
+            "1 simulacao/dia"
+          ]
+        },
+        "pro": {
+          "preco": 9.9,
+          "features": [
+            "Alertas",
+            "Simulacoes ilimitadas",
+            "Historico",
+            "Suporte"
+          ]
+        },
+        "contador": {
+          "preco": 150,
+          "features": [
+            "Consultoria",
+            "Declaracao"
+          ]
+        }
+      },
+      "projecao": {
+        "mes_1": {
+          "usuarios": 100,
+          "conversao": 0.05,
+          "receita": 49.5
+        },
+        "mes_3": {
+          "usuarios": 500,
+          "conversao": 0.08,
+          "receita": 396.0
+        },
+        "mes_6": {
+          "usuarios": 2000,
+          "conversao": 0.1,
+          "receita": 1980.0
+        },
+        "mes_12": {
+          "usuarios": 10000,
+          "conversao": 0.12,
+          "receita": 11880.0
+        }
+      },
+      "custos": {
+        "hosting": 50,
+        "dominio": 4,
+        "email": 0,
+        "total_mes": 54
+      },
+      "margem": {
+        "receita_mes_12": 11880,
+        "custos_mes_12": 150,
+        "lucro_mes_12": 11730,
+        "margem_pct": 98.7
+      },
+      "breakeven": {
+        "investimento_inicial": 500,
+        "receita_por_usuario": 9.9,
+        "usuarios_para_break_even": 51,
+        "meses_estimados": 2
+      },
+      "riscos": [
+        "Conversao pode ser menor que 5%",
+        "Churn pode ser alto (app simples)",
+        "Precisará de marketing para escalar"
+      ],
+      "potencial": [
+        "Versao PRO+ com mais features (R$19,90)",
+        "API para contadores (B2B)",
+        "White-label para escritorios",
+        "Integracao com NF-e (pago adicional)"
+      ]
+    },
+    "verdict": "APROVADO"
+  },
+  "audit": {
+    "agent": "Audit Agent",
+    "checks_passed": 24,
+    "checks_failed": 4,
+    "issues": [
+      "HTTPS habilitado",
+      "Termos de uso presentes",
+      "Politica de privacidade",
+      "Dockerfile pronto"
+    ],
+    "score": 96,
+    "max_score": 100,
+    "verdict": "APROVADO"
+  },
+  "media_geral": 98.0,
+  "veredicto": "APROVADO"
+}

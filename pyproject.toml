@@ -1,0 +1,19 @@
+[project]
+name = "cupula-gestao"
+version = "1.0.0"
+description = "Cúpula de Gestão Autônoma — Sistema multi-agente com Setor Jurídico, AI Gateway e meta-agentes"
+requires-python = ">=3.12"
+authors = [
+    {name = "Marcus Cotta"},
+]
+
+[project.scripts]
+cupula-api = "cupula.api.main:main"
+cupula-worker = "cupula.worker.main:main"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
