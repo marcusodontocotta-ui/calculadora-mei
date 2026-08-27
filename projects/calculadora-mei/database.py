@@ -4,6 +4,7 @@ Conexao com o mesmo banco do SISGERSA (tabelas separadas com prefixo 'mei_')
 """
 import os
 import re
+import ssl
 import asyncpg
 from datetime import datetime
 
@@ -14,21 +15,13 @@ RAW_DATABASE_URL = os.environ.get(
 
 
 def _parse_database_url(url: str) -> dict:
-    """Parseia DATABASE_URL e lida com sslmode (que asyncpg nao aceita na string)."""
+    """Parseia DATABASE_URL e remove sslmode (asyncpg nao aceita na string)."""
     sslmode = None
     m = re.search(r'[?&]sslmode=([^&]+)', url)
     if m:
         sslmode = m.group(1)
         url = re.sub(r'[?&]sslmode=[^&]+', '', url)
-        if '?' not in url:
-            url = url.replace('&', '?', 1)
-    m2 = re.search(r'\?&', url)
-    if m2:
-        url = url.replace('?&', '?')
     url = url.rstrip('?&')
-
-    if url.startswith('postgresql://'):
-        url = 'postgresql+asyncpg://' + url[len('postgresql://'):]
     return {"dsn": url, "sslmode": sslmode}
 
 
@@ -43,12 +36,10 @@ async def get_pool():
     global pool
     if pool is None:
         kwargs = {"min_size": 1, "max_size": 5}
-        if DATABASE_SSL:
-            import ssl
+        if DATABASE_SSL == "require":
             ctx = ssl.create_default_context()
-            if DATABASE_SSL == "require":
-                ctx.check_hostname = False
-                ctx.verify_mode = ssl.CERT_NONE
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
             kwargs["ssl"] = ctx
         pool = await asyncpg.create_pool(DATABASE_URL, **kwargs)
     return pool
