@@ -3,13 +3,38 @@ Calculadora MEI - Database PostgreSQL
 Conexao com o mesmo banco do SISGERSA (tabelas separadas com prefixo 'mei_')
 """
 import os
+import re
 import asyncpg
 from datetime import datetime
 
-DATABASE_URL = os.environ.get(
+RAW_DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://sisgersa_app:ixnU2aktneWNQhJoqiiKRQs033NSUnM5@dpg-d9hqikr7uimc73dt3e0g-a.oregon-postgres.render.com/sisgersa"
 )
+
+
+def _parse_database_url(url: str) -> dict:
+    """Parseia DATABASE_URL e lida com sslmode (que asyncpg nao aceita na string)."""
+    sslmode = None
+    m = re.search(r'[?&]sslmode=([^&]+)', url)
+    if m:
+        sslmode = m.group(1)
+        url = re.sub(r'[?&]sslmode=[^&]+', '', url)
+        if '?' not in url:
+            url = url.replace('&', '?', 1)
+    m2 = re.search(r'\?&', url)
+    if m2:
+        url = url.replace('?&', '?')
+    url = url.rstrip('?&')
+
+    if url.startswith('postgresql://'):
+        url = 'postgresql+asyncpg://' + url[len('postgresql://'):]
+    return {"dsn": url, "sslmode": sslmode}
+
+
+parsed = _parse_database_url(RAW_DATABASE_URL)
+DATABASE_URL = parsed["dsn"]
+DATABASE_SSL = parsed["sslmode"]
 
 pool = None
 
@@ -17,7 +42,15 @@ pool = None
 async def get_pool():
     global pool
     if pool is None:
-        pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=5)
+        kwargs = {"min_size": 1, "max_size": 5}
+        if DATABASE_SSL:
+            import ssl
+            ctx = ssl.create_default_context()
+            if DATABASE_SSL == "require":
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+            kwargs["ssl"] = ctx
+        pool = await asyncpg.create_pool(DATABASE_URL, **kwargs)
     return pool
 
 
