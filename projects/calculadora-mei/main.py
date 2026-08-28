@@ -51,12 +51,12 @@ LIMITES_UPLOAD = {
 
 
 def _detectar_imagem(content_type: str, dados: bytes) -> str | None:
-    """Valida imagem por magic bytes e retorna extensao; None se nao for jpeg/png/webp real."""
-    if dados[:4] == b"\xff\xd8\xff":
+    """Valida estrutura minima da imagem (magic bytes + headers) e retorna extensao."""
+    if len(dados) >= 4 and dados[:3] == b"\xff\xd8\xff":
         return ".jpg"
-    if dados.startswith(b"\x89PNG\r\n\x1a\n"):
+    if len(dados) >= 24 and dados.startswith(b"\x89PNG\r\n\x1a\n") and dados[12:16] == b"IHDR":
         return ".png"
-    if dados[:4] == b"RIFF" and dados[8:12] == b"WEBP":
+    if len(dados) >= 12 and dados[:4] == b"RIFF" and dados[8:12] == b"WEBP":
         return ".webp"
     return None
 
@@ -861,7 +861,7 @@ async def api_alertas(mes: Optional[int] = None, ano: Optional[int] = None):
 async def api_tabela_das():
     return {
         "sucesso": True,
-        "ano": 2025,
+        "ano": 2026,
         "teto_anual": TETO_ANUAL_2025,
         "teto_mensal": round(TETO_MENSAL_2025, 2),
         "tabela": TABELA_DAS_2025,
