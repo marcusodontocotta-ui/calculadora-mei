@@ -164,16 +164,27 @@ async def criar_checkout(req: AssinaturaRequest):
             },
             json={
                 "items": [{
-                    "title": "Calculadora MEI - Plano PRO",
-                    "quantity": 1,
-                    "unit_price": PRECO_PRO_MENSAL
-                }],
+                "id": "plano_pro",
+                "title": "Calculadora MEI - Plano PRO",
+                "description": "Plano PRO mensal - Calculadora MEI",
+                "quantity": 1,
+                "unit_price": PRECO_PRO_MENSAL,
+                "currency_id": "BRL"
+            }],
                 "payer": {
                     "email": req.email,
                     "name": req.nome
                 },
                 "metadata": {
                     "cliente_id": req.cliente_id
+                },
+                "external_reference": f"cliente_{req.cliente_id}",
+                "notification_url": "https://calculadora-mei.onrender.com/api/webhook/mercadopago",
+                "auto_return": "approved",
+                "back_urls": {
+                    "success": "https://calculadora-mei.onrender.com/?pagamento=sucesso",
+                    "pending": "https://calculadora-mei.onrender.com/?pagamento=pendente",
+                    "failure": "https://calculadora-mei.onrender.com/?pagamento=erro"
                 }
             }
         )
