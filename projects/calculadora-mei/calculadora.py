@@ -34,6 +34,7 @@ class CenarioSimulacao:
     custos_fixos: float
     custos_variaveis_pct: float
     meses: int
+    atividade: str = "comercio"
 
 
 @dataclass
@@ -48,20 +49,20 @@ class ResultadoSimulacao:
     roi_meses: float
 
 
-# Tabela DAS MEI 2025 (valores atualizados conforme Lei 14.848/2024)
+# Tabela DAS MEI 2026 (INSS = 5% do salario minimo R$ 1.621,00; ICMS fixo R$ 1,00; ISS fixo R$ 5,00)
 TABELA_DAS_2025 = {
     "comercio": {
-        "inss": 75.00,
-        "icms": 75.00,
+        "inss": 81.05,
+        "icms": 1.00,
     },
     "servico": {
-        "inss": 75.00,
-        "iss": 75.00,
+        "inss": 81.05,
+        "iss": 5.00,
     },
     "misto": {
-        "inss": 75.00,
-        "icms": 75.00,
-        "iss": 75.00,
+        "inss": 81.05,
+        "icms": 1.00,
+        "iss": 5.00,
     }
 }
 
@@ -141,8 +142,14 @@ def simular_cenarios(cenarios: list) -> list:
         custos_variaveis = faturamento_anual * (cenario.custos_variaveis_pct / 100)
 
         meses_no_teto = min(12, int(TETO_ANUAL_2025 / cenario.faturamento_mensal)) if cenario.faturamento_mensal > 0 else 0
-        das_anual = meses_no_teto * TABELA_DAS_2025["servico"]["inss"] + \
-                   meses_no_teto * TABELA_DAS_2025["servico"]["iss"]
+        atividade = getattr(cenario, "atividade", "comercio") or "comercio"
+        if atividade not in TABELA_DAS_2025:
+            atividade = "comercio"
+        tabela_atividade = TABELA_DAS_2025[atividade]
+        valor_mensal_das = tabela_atividade["inss"] + \
+            tabela_atividade.get("icms", 0) + \
+            tabela_atividade.get("iss", 0)
+        das_anual = meses_no_teto * valor_mensal_das
 
         lucro_bruto = faturamento_anual - custos_fixos_anual - custos_variaveis
         lucro_liquido = lucro_bruto - das_anual

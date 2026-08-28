@@ -3,14 +3,19 @@ services:
     name: calculadora-mei
     runtime: python
     plan: free
+    region: oregon
+    rootDir: projects/calculadora-mei
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: sisgersa-db
-          property: connectionString
+        sync: false
       - key: MP_ACCESS_TOKEN
         sync: false
       - key: MP_PUBLIC_KEY
         sync: false
+      - key: ADMIN_SECRET
+        generateValue: true
+      - key: RECONCILIACAO_INTERVALO_SEG
+        value: "300"

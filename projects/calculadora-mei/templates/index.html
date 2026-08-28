@@ -18,15 +18,30 @@
             <span class="logo-icon">M</span>
             <span class="logo-text">Calculadora MEI</span>
         </div>
-        <div class="nav-links">
+        <button type="button" class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-links" id="navMenu">
             <a href="#como-funciona">Como Funciona</a>
             <a href="#app">Calcular DAS</a>
             <a href="#educacao">Aprenda</a>
             <a href="#comparativo">Comparativo</a>
             <a href="#precos" class="btn btn-nav">Assinar</a>
+            <div class="nav-user" id="navDeslogado">
+                <button type="button" class="btn btn-nav btn-nav-outline" id="btnAbrirLogin">Entrar</button>
+                <button type="button" class="btn btn-nav" id="btnAbrirCadastro">Criar conta</button>
+            </div>
+            <div class="nav-user" id="navAutenticado" style="display:none;">
+                <span class="nav-user-name" id="navUserName"></span>
+                <button type="button" class="btn btn-nav" id="btnSair">Sair</button>
+            </div>
         </div>
     </div>
 </nav>
+
+<div id="pagamentoBanner" class="pagamento-banner" style="display:none;"></div>
 
 <!-- HERO -->
 <section class="hero">
@@ -48,7 +63,7 @@
                         <span class="alert-icon">!</span>
                         <span>FALTAM 7 DIAS</span>
                     </div>
-                    <div class="phone-value">R$ 150,00</div>
+                    <div class="phone-value">R$ 86,05</div>
                     <div class="phone-label">DAS de Agosto</div>
                 </div>
             </div>
@@ -121,7 +136,7 @@
                     </div>
                     <div class="eff-item">
                         <span class="eff-label">DAS</span>
-                        <span class="eff-value" id="effDasVal">R$ 150</span>
+                        <span class="eff-value" id="effDasVal">R$ 86</span>
                     </div>
                     <div class="eff-item highlight">
                         <span class="eff-label">Lucro Liquido</span>
@@ -205,7 +220,7 @@
                         <div class="pros">
                             <h4>Vantagens</h4>
                             <ul>
-                                <li>DAS fixo (R$ 150/mes) — previsibilidade</li>
+                                <li>DAS fixo (a partir de R$ 82,05/mes) — previsibilidade</li>
                                 <li>Pode emitir nota fiscal</li>
                                 <li>Conta bancaria PJ</li>
                                 <li>Emprestimo facilitado</li>
@@ -313,7 +328,7 @@
                                 <td><strong>MEI</strong></td>
                                 <td>Ate R$ 81k/ano</td>
                                 <td>Nao (familiar sim)</td>
-                                <td>R$ 150/mes fixo</td>
+                                <td>R$ 82,05 a 87,05/mes</td>
                                 <td>Inicio de atividade, baixo faturamento</td>
                             </tr>
                             <tr>
@@ -1032,7 +1047,7 @@
                     <li>Historico de pagamentos</li>
                     <li>Suporte prioritario</li>
                 </ul>
-                <a href="#app" class="btn btn-primary">Assinar PRO</a>
+                <a href="#app" class="btn btn-primary" onclick="event.preventDefault(); assinarPro();">Assinar PRO</a>
             </div>
             <div class="pricing-card">
                 <h3>Contador</h3>
@@ -1089,20 +1104,31 @@
                 <span class="pro-periodo">/mes</span>
             </div>
 
+            <div class="pro-trust">
+                <span class="badge-garantia">Garantia de 7 dias - reembolso garantido</span>
+            </div>
+
             <div id="proCheckoutForm" class="pro-checkout">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Seu nome</label>
-                        <input type="text" id="proNome" placeholder="Nome completo" required>
-                    </div>
                     <div class="form-group">
                         <label>Seu e-mail</label>
                         <input type="email" id="proEmail" placeholder="email@exemplo.com" required>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cupom de desconto</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="cupomInput" placeholder="TESTE100">
+                            <button type="button" id="btnAplicarCupom" class="btn btn-primary btn-sm" onclick="aplicarCupom()">Aplicar</button>
+                        </div>
+                    </div>
+                </div>
+                <p id="cupomStatus" class="pro-legal"></p>
                 <button id="btnAssinar" class="btn btn-primary btn-pro" onclick="iniciarAssinatura()">
                     Assinar agora - R$ 9,90/mes
                 </button>
+                <p class="pro-seguro">&#x1F512; Pagamento 100% seguro com Mercado Pago</p>
                 <p class="pro-legal">Pagamento seguro via Mercado Pago. Cancele quando quiser.</p>
             </div>
 
@@ -1127,7 +1153,7 @@
             </details>
             <details class="faq-item">
                 <summary>Quanto custa o DAS?</summary>
-                <p>Servicos: R$ 150/mes. Comercio: R$ 150/mes. Misto: R$ 225/mes.</p>
+                <p>Servicos: R$ 86,05/mes. Comercio: R$ 82,05/mes. Misto: R$ 87,05/mes.</p>
             </details>
             <details class="faq-item">
                 <summary>Quando vence o DAS?</summary>
@@ -1167,15 +1193,57 @@
                 <span class="logo-text">Calculadora MEI</span>
             </div>
             <div class="footer-links">
-                <a href="#">Termos de Uso</a>
-                <a href="#">Politica de Privacidade</a>
-                <a href="#">Contato</a>
+                <a href="/termos">Termos de Uso</a>
+                <a href="/privacidade">Politica de Privacidade</a>
+                <a href="mailto:contato@calculadoramei.com.br">Contato</a>
             </div>
         </div>
         <p class="footer-disclaimer">Valores baseados na legislacao vigente (Lei 12.846/2013 e Lei 14.848/2024). Consulte um contador para orientacao especifica.</p>
         <p class="footer-copy">2025 Calculadora MEI. Todos os direitos reservados.</p>
     </div>
 </footer>
+
+<div class="modal-overlay" id="authModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="authModalTitle">Acesse sua conta</h3>
+            <button class="modal-close" id="btnCloseAuth">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" data-authtab="login">Entrar</button>
+                <button type="button" class="auth-tab" data-authtab="cadastro">Criar conta</button>
+            </div>
+            <div id="authMessage" class="auth-message" style="display:none;"></div>
+            <form id="authLoginForm" class="auth-form">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="authLoginEmail" placeholder="seu@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="authLoginSenha" placeholder="Sua senha" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="btnFazerLogin">Entrar</button>
+            </form>
+            <form id="authCadastroForm" class="auth-form" style="display:none;">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="authCadNome" placeholder="Seu nome" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="authCadEmail" placeholder="seu@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="authCadSenha" placeholder="Minimo 6 caracteres" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="btnCriarConta">Criar minha conta</button>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div class="modal-overlay" id="cameraModal" style="display:none;">
     <div class="modal-content">

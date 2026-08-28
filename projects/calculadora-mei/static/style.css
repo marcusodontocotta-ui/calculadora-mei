@@ -110,6 +110,44 @@ body {
     transform: translateY(-1px);
 }
 
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 26px;
+    height: 3px;
+    background: var(--gray-900);
+    border-radius: 2px;
+    transition: all 0.25s ease;
+}
+
+.nav-toggle:hover span {
+    background: var(--primary);
+}
+
+.nav-toggle.ativo span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.nav-toggle.ativo span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.ativo span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
 /* ============ HERO ============ */
 .hero {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
@@ -1921,6 +1959,32 @@ textarea:focus {
     color: #64748b;
     margin-top: 1rem;
 }
+.pro-trust {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1rem 0 2rem;
+}
+.badge-garantia {
+    display: inline-block;
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid var(--primary-light);
+    padding: 0.45rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.pro-seguro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: 0.75rem;
+}
 .pro-status-ativo {
     display: flex;
     align-items: center;
@@ -1989,8 +2053,31 @@ textarea:focus {
 }
 
 @media (max-width: 768px) {
+    .nav-toggle {
+        display: flex;
+    }
+
     .nav-links {
         display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        background: white;
+        padding: 1rem 2rem 1.5rem;
+        box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .nav-links.ativo {
+        display: flex;
+    }
+
+    .nav-links .nav-user {
+        flex-wrap: wrap;
     }
 
     .form-row {
@@ -2360,5 +2447,184 @@ textarea:focus {
         width: 24px;
         height: 24px;
         font-size: 0.8rem;
+    }
+}
+
+/* ============ AUTENTICACAO ============ */
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-nav-outline {
+    background: transparent !important;
+    border: 2px solid var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+.btn-nav-outline:hover {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+.nav-user-name {
+    color: var(--gray-700);
+    font-weight: 600;
+    font-size: 0.9rem;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-sm {
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+}
+
+.btn-block {
+    width: 100%;
+    display: block;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--gray-500);
+    padding: 2rem 1rem;
+    line-height: 2;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    background: var(--gray-100);
+    border-radius: 10px;
+    padding: 0.25rem;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--gray-500);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.auth-tab.active {
+    background: white;
+    color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.auth-message {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.auth-message.erro {
+    background: #fef2f2;
+    color: var(--danger);
+    border: 1px solid #fecaca;
+}
+
+.auth-message.info {
+    background: #eff6ff;
+    color: var(--secondary);
+    border: 1px solid #bfdbfe;
+}
+
+.auth-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.pagamento-banner {
+    max-width: 1200px;
+    margin: 1rem auto 0;
+    padding: 0 2rem;
+}
+
+.pagamento-aviso {
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.pagamento-aviso.sucesso {
+    background: #f0fdf4;
+    border: 1px solid var(--primary);
+    color: var(--primary-dark);
+}
+
+.pagamento-aviso.pendente {
+    background: #fffbeb;
+    border: 1px solid var(--warning);
+    color: #92400e;
+}
+
+.pagamento-aviso.erro {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--danger);
+}
+
+/* ============ TOAST ============ */
+.toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gray-900);
+    color: white;
+    padding: 0.875rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    max-width: 90vw;
+    text-align: center;
+}
+
+.toast.mostrar {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.toast-sucesso {
+    background: var(--primary);
+}
+
+.toast-erro {
+    background: var(--danger);
+}
+
+.toast-info {
+    background: var(--gray-900);
+}
+
+@media (max-width: 768px) {
+    .toast {
+        width: 90vw;
+        left: 5vw;
+        transform: translateY(20px);
+        bottom: 1rem;
+    }
+    .toast.mostrar {
+        transform: translateY(0);
     }
 }
