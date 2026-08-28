@@ -114,7 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Simular button
-    document.getElementById('btnSimular').addEventListener('click', simularCenarios);
+    const btnSimular = document.getElementById('btnSimular');
+    if (btnSimular) {
+        btnSimular.addEventListener('click', simularCenarios);
+    }
 
     // Produto Form
     const formProduto = document.getElementById('formProduto');
