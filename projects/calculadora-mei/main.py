@@ -695,7 +695,7 @@ async def reconciliar_manual(authorization: str = Header(None)):
 @app.get("/api/plano")
 async def ver_plano(usuario: dict = Depends(usuario_atual)):
     assinatura = await database.obter_assinatura_usuario(usuario["id"])
-    ativa = _ativa_se_vigente(assinatura)
+    ativa = await _ativa_se_vigente(assinatura)
     plano = "pro" if ativa else "free"
     produtos = await database.contar_produtos(usuario["id"])
     clientes = await database.contar_clientes(usuario["id"])
