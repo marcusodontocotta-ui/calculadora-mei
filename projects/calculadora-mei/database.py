@@ -308,7 +308,7 @@ async def obter_assinatura_cliente(cliente_id: int) -> dict | None:
     p = await get_pool()
     async with p.acquire() as conn:
         row = await conn.fetchrow(
-            "SELECT * FROM mei_assinaturas WHERE cliente_id=$1 AND status='ativa' ORDER BY id DESC LIMIT 1",
+            "SELECT * FROM mei_assinaturas WHERE cliente_id=$1 ORDER BY id DESC LIMIT 1",
             cliente_id
         )
         return dict(row) if row else None
