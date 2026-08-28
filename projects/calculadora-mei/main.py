@@ -4,6 +4,7 @@ FastAPI server com endpoints para calculos DAS, simulacoes, alertas e registro d
 """
 import asyncio
 import hashlib
+import hmac
 import os
 import re
 import secrets
@@ -78,8 +79,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["https://calculadora-mei.onrender.com"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -225,7 +226,7 @@ def _assinatura_ativa(assinatura) -> bool:
     if not fim:
         return True
     try:
-        return datetime.fromisoformat(fim) > datetime.now()
+        return datetime.fromisoformat(fim) > datetime.now(timezone.utc)
     except Exception:
         return True
 
@@ -258,6 +259,13 @@ async def reconciliar_pagamentos():
             print(f"[RECON] {expiradas} assinatura(s) expirada(s) por data_fim vencida")
     except Exception as e:
         print(f"[RECON] Erro ao expirar assinaturas: {e}")
+
+    try:
+        canceladas = await database.cancelar_pendencias_abandonadas(120)
+        if canceladas:
+            print(f"[RECON] {canceladas} pendencia(s) abandonada(s) cancelada(s)")
+    except Exception as e:
+        print(f"[RECON] Erro ao cancelar pendencias abandonadas: {e}")
 
     try:
         pendentes = await database.listar_assinaturas_pendentes()
@@ -331,6 +339,15 @@ async def lifespan(app):
 
 
 # ── Validacao de email ───────────────────────────────────────────────────────
+
+def _hmac_valid(secret: str, manifest: str, token: str) -> bool:
+    """Valida token exato de uma assinatura HMAC-SHA256."""
+    try:
+        calculado = hmac.new(secret.encode(), manifest.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(calculado, token)
+    except Exception:
+        return False
+
 
 def _dominio_tem_mx(dominio: str) -> bool:
     """Checa se o dominio tem registro MX via nslookup. Se a ferramenta falhar, aceita (noop True)."""
@@ -490,6 +507,22 @@ async def me(usuario: dict = Depends(usuario_atual)):
     }
 
 
+@app.get("/api/conta/dados")
+async def exportar_dados(usuario: dict = Depends(usuario_atual)):
+    """Exporta todos os dados do usuario (direito de portabilidade LGPD)."""
+    dados = await database.exportar_dados_usuario(usuario["id"])
+    return {"sucesso": True, "usuario": usuario, "dados": dados}
+
+
+@app.delete("/api/conta")
+async def excluir_conta(authorization: str = Header(None), usuario: dict = Depends(usuario_atual)):
+    """Exclui a conta e todos os dados associados (direito de exclusao LGPD)."""
+    excluido = await database.excluir_usuario(usuario["id"])
+    if authorization and authorization.startswith("Bearer "):
+        await database.revogar_sessao(authorization[7:].strip())
+    return {"sucesso": excluido, "mensagem": "Conta e dados excluidos"}
+
+
 # ── Assinaturas / Plano ──────────────────────────────────────────────────────
 
 def _aplicar_cupom(percentual: float) -> dict:
@@ -503,17 +536,37 @@ def _aplicar_cupom(percentual: float) -> dict:
 @app.post("/api/assinatura/checkout")
 async def criar_checkout(req: AssinaturaRequest, usuario: dict = Depends(usuario_atual)):
     usuario_id = usuario["id"]
-    ativa = await database.obter_assinatura_ativa_usuario(usuario_id)
-    if ativa:
-        return {"sucesso": False, "motivo": "ja_ativa"}
 
     pendente = await database.obter_assinatura_pendente_usuario(usuario_id)
     if pendente:
-        return {
-            "sucesso": False,
-            "motivo": "ja_pendente",
-            "mensagem": "Ja existe um pagamento pendente. Conclua ou aguarde a confirmacao.",
-        }
+        criada = pendente.get("criado_em")
+        antiga = False
+        if criada:
+            try:
+                from datetime import timedelta
+                antiga = datetime.fromisoformat(criada) < datetime.now() - timedelta(hours=2)
+            except Exception:
+                antiga = False
+        if not antiga:
+            return {
+                "sucesso": False,
+                "motivo": "ja_pendente",
+                "mensagem": "Ja existe um pagamento pendente. Conclua ou aguarde a confirmacao.",
+            }
+        await database.cancelar_assinatura_usuario_pendente(usuario_id)
+
+    ativa = await database.obter_assinatura_ativa_usuario(usuario_id)
+    if ativa:
+        fim = ativa.get("data_fim")
+        pode_renovar = False
+        if fim:
+            try:
+                from datetime import timedelta
+                pode_renovar = datetime.fromisoformat(fim) - datetime.now(timezone.utc) <= timedelta(days=5)
+            except Exception:
+                pode_renovar = False
+        if not pode_renovar:
+            return {"sucesso": False, "motivo": "ja_ativa"}
 
     cupom_aplicado = None
     valor_unitario = PRECO_PRO_MENSAL
@@ -595,6 +648,21 @@ async def webhook_mercadopago(request: Request):
         body = {}
     tipo = body.get("type", "")
     dados = body.get("data", {})
+
+    header_sig = request.headers.get("x-signature", "")
+    request_id = request.headers.get("x-request-id", "")
+    if header_sig:
+        secret = os.environ.get("MP_WEBHOOK_SECRET", "")
+        if secret:
+            par = dict(p.split("=") for p in header_sig.split(",") if "=" in p)
+            ts = par.get("ts", "")
+            v1 = par.get("v1", "")
+            payload_id = dados.get("id", "")
+            if ts and v1:
+                manifest = f"id:{payload_id}\nrequest-id:{request_id}\nts:{ts}"
+                if not _hmac_valid(secret, manifest, v1):
+                    print("[WEBHOOK] X-Signature invalida")
+                    return {"sucesso": False, "processado": False, "motivo": "assinatura_invalida"}
 
     if tipo != "payment":
         return {"sucesso": True, "processado": False, "motivo": "tipo_ignorado"}
@@ -712,7 +780,7 @@ async def ver_plano(usuario: dict = Depends(usuario_atual)):
         dias_restantes = None
         if assinatura.get("data_fim"):
             try:
-                dias_restantes = max(0, (datetime.fromisoformat(assinatura["data_fim"]) - datetime.now()).days)
+                dias_restantes = max(0, (datetime.fromisoformat(assinatura["data_fim"]) - datetime.now(timezone.utc)).days)
             except Exception:
                 pass
         base["dias_restantes"] = dias_restantes
@@ -1050,7 +1118,7 @@ async def upload_foto_produto(produto_id: int, arquivo: UploadFile = File(...), 
     caminho = os.path.join(upload_dir, nome_arquivo)
 
     with open(caminho, "wb") as buffer:
-        shutil.copyfileobj(arquivo.file, buffer)
+        buffer.write(conteudo)
 
     foto_url = f"/static/uploads/produtos/{nome_arquivo}"
     produto["foto_url"] = foto_url

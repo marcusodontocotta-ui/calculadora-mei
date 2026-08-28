@@ -214,6 +214,41 @@ async def revogar_sessao(token: str):
         await conn.execute("DELETE FROM mei_sessoes WHERE token=$1", token)
 
 
+async def excluir_usuario(usuario_id: int) -> bool:
+    """Exclui a conta do usuario e todos os dados associados (direito de exclusao LGPD)."""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        async with conn.transaction():
+            for tabela in ("mei_sessoes", "mei_pagamentos", "mei_assinaturas",
+                           "mei_produtos", "mei_clientes", "mei_vendas", "mei_despesas"):
+                try:
+                    await conn.execute(f"DELETE FROM {tabela} WHERE usuario_id=$1", usuario_id)
+                except Exception:
+                    pass
+            result = await conn.execute("DELETE FROM mei_usuarios WHERE id=$1", usuario_id)
+            return result.endswith(" 1")
+
+
+async def exportar_dados_usuario(usuario_id: int) -> dict:
+    """Retorna todos os dados do usuario em formato estruturado (portabilidade LGPD)."""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        usuario = await conn.fetchrow(
+            "SELECT id, nome, email FROM mei_usuarios WHERE id=$1", usuario_id
+        )
+        dados = {}
+        for tabela in ("mei_produtos", "mei_clientes", "mei_vendas", "mei_despesas",
+                       "mei_assinaturas", "mei_pagamentos"):
+            try:
+                rows = await conn.fetch(
+                    f"SELECT * FROM {tabela} WHERE usuario_id=$1 ORDER BY id", usuario_id
+                )
+                dados[tabela] = [dict(r) for r in rows]
+            except Exception:
+                dados[tabela] = []
+        return {"usuario": dict(usuario) if usuario else None, "tabelas": dados}
+
+
 async def usuario_por_token(token: str) -> dict | None:
     """Busca sessao valida (nao expirada) e retorna o usuario."""
     p = await get_pool()
@@ -583,6 +618,26 @@ async def expirar_assinaturas_vencidas() -> int:
         return 0
 
 
+async def cancelar_pendencias_abandonadas(idade_minutos: int = 120) -> int:
+    """Marca como 'cancelada' assinaturas pendentes abandonadas ha mais de idade_minutos.
+
+    Impede que um checkout abandonado trave o usuario para sempre (ja_pendente eterno).
+    """
+    p = await get_pool()
+    async with p.acquire() as conn:
+        result = await conn.execute(
+            """UPDATE mei_assinaturas SET status='cancelada'
+               WHERE status='pendente'
+                 AND criado_em IS NOT NULL
+                 AND (criado_em::timestamptz) < (NOW() - ($1 || ' minutes')::interval)""",
+            idade_minutos
+        )
+    try:
+        return int(result.split()[-1])
+    except Exception:
+        return 0
+
+
 async def obter_assinatura_cliente(cliente_id: int) -> dict | None:
     """Compatibilidade: busca por cliente_id."""
     p = await get_pool()
@@ -599,6 +654,15 @@ async def cancelar_assinatura_usuario(usuario_id: int):
     async with p.acquire() as conn:
         await conn.execute(
             "UPDATE mei_assinaturas SET status='cancelada' WHERE usuario_id=$1 AND status='ativa'",
+            usuario_id
+        )
+
+
+async def cancelar_assinatura_usuario_pendente(usuario_id: int):
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute(
+            "UPDATE mei_assinaturas SET status='cancelada' WHERE usuario_id=$1 AND status='pendente'",
             usuario_id
         )
 

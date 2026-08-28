@@ -8,6 +8,15 @@ let userState = {
 let pollPlanoTimer = null;
 let cupomAtivo = null;
 
+function esc(v) {
+    return String(v == null ? '' : v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function mostrarToast(msg, tipo) {
     const tipoClasse = tipo === 'erro' ? 'toast-erro' : (tipo === 'sucesso' ? 'toast-sucesso' : 'toast-info');
     const toast = document.createElement('div');
@@ -707,17 +716,17 @@ async function carregarProdutos() {
                 </div>
                 <div class="product-details">
                     <div class="product-header">
-                        <span class="product-category cat-${p.categoria}">${p.categoria === 'servico' ? 'S' : p.categoria === 'insumo' ? 'I' : 'P'}</span>
-                        <strong class="product-name">${p.nome}</strong>
+                        <span class="product-category cat-${esc(p.categoria)}">${p.categoria === 'servico' ? 'S' : p.categoria === 'insumo' ? 'I' : 'P'}</span>
+                        <strong class="product-name">${esc(p.nome)}</strong>
                     </div>
                     <div class="product-meta">
-                        <span class="product-price">${p.preco_formatado}/${p.unidade || 'un'}</span>
-                        ${p.estoque > 0 ? `<span class="product-estoque">Estoque: ${p.estoque}</span>` : ''}
+                        <span class="product-price">${esc(p.preco_formatado)}/${esc(p.unidade || 'un')}</span>
+                        ${p.estoque > 0 ? `<span class="product-estoque">Estoque: ${esc(p.estoque)}</span>` : ''}
                     </div>
-                    ${p.descricao ? `<span class="product-desc">${p.descricao}</span>` : ''}
+                    ${p.descricao ? `<span class="product-desc">${esc(p.descricao)}</span>` : ''}
                     <div class="product-dates">
-                        ${p.data_fabricacao ? `<span class="date-fab">Fabricado: ${p.data_fabricacao}</span>` : ''}
-                        ${p.data_validade ? `<span class="date-val">Validade: ${p.data_validade}</span>` : ''}
+                        ${p.data_fabricacao ? `<span class="date-fab">Fabricado: ${esc(p.data_fabricacao)}</span>` : ''}
+                        ${p.data_validade ? `<span class="date-val">Validade: ${esc(p.data_validade)}</span>` : ''}
                         ${validadeBadge}
                     </div>
                     ${barcodeHtml}
@@ -823,13 +832,13 @@ async function carregarVendasMes() {
             item.className = 'venda-item';
             item.innerHTML = `
                 <div class="venda-info">
-                    <strong>${v.descricao}</strong>
-                    <span class="venda-data">${v.data}</span>
-                    ${v.cliente ? `<span class="venda-cliente">${v.cliente}</span>` : ''}
-                    <span class="venda-qtd">${v.quantidade}x R$ ${v.valor_unitario.toFixed(2).replace('.', ',')}</span>
+                    <strong>${esc(v.descricao)}</strong>
+                    <span class="venda-data">${esc(v.data)}</span>
+                    ${v.cliente ? `<span class="venda-cliente">${esc(v.cliente)}</span>` : ''}
+                    <span class="venda-qtd">${esc(v.quantidade)}x R$ ${esc(v.valor_unitario.toFixed ? v.valor_unitario.toFixed(2).replace('.', ',') : v.valor_unitario)}</span>
                 </div>
                 <div class="venda-right">
-                    <span class="venda-valor">${v.valor_formatado}</span>
+                    <span class="venda-valor">${esc(v.valor_formatado)}</span>
                     <button class="btn-delete-sm" onclick="excluirVenda(${v.id})">X</button>
                 </div>
             `;
@@ -957,9 +966,9 @@ async function carregarDespesas() {
             item.className = 'despesa-item';
             item.innerHTML = `
                 <div class="despesa-info">
-                    <span class="despesa-categoria cat-${d.categoria}">${d.categoria}</span>
-                    <span class="despesa-desc">${d.descricao}</span>
-                    <span class="despesa-data">${d.data}</span>
+                    <span class="despesa-categoria cat-${esc(d.categoria)}">${esc(d.categoria)}</span>
+                    <span class="despesa-desc">${esc(d.descricao)}</span>
+                    <span class="despesa-data">${esc(d.data)}</span>
                 </div>
                 <div class="despesa-right">
                     <span class="despesa-valor">${formatarMoedaLocal(d.valor)}</span>
@@ -1271,18 +1280,18 @@ async function carregarClientes(busca = '') {
             card.className = 'cliente-card';
             card.innerHTML = `
                 <div class="cliente-info">
-                    <strong class="cliente-nome">${c.nome}</strong>
+                    <strong class="cliente-nome">${esc(c.nome)}</strong>
                     <span class="cliente-detalhes">
-                        ${c.telefone ? `Tel: ${c.telefone}` : ''}
-                        ${c.email ? ` | ${c.email}` : ''}
+                        ${c.telefone ? `Tel: ${esc(c.telefone)}` : ''}
+                        ${c.email ? ` | ${esc(c.email)}` : ''}
                         ${idade}
                     </span>
                     <div class="cliente-tags">
                         ${periodicidadeBadge}
-                        ${c.produto_preferido ? `<span class="cli-produto">${c.produto_preferido}</span>` : ''}
+                        ${c.produto_preferido ? `<span class="cli-produto">${esc(c.produto_preferido)}</span>` : ''}
                         ${aniversarioInfo}
                     </div>
-                    ${c.observacoes ? `<span class="cli-obs">${c.observacoes}</span>` : ''}
+                    ${c.observacoes ? `<span class="cli-obs">${esc(c.observacoes)}</span>` : ''}
                 </div>
                 <div class="cliente-actions">
                     <button class="btn-delete-sm" onclick="excluirCliente(${c.id})">X</button>
@@ -1333,9 +1342,9 @@ async function carregarAniversariantes() {
                 item.innerHTML = `
                     <span class="aniv-icone">!</span>
                     <div>
-                        <strong>${c.nome}</strong>
-                        <span>${c.data_aniversario_formatado || c.data_aniversario}</span>
-                        ${c.telefone ? `<a href="https://wa.me/55${c.telefone.replace(/\D/g, '')}" target="_blank" class="aniv-whatsapp">Enviar WhatsApp</a>` : ''}
+                        <strong>${esc(c.nome)}</strong>
+                        <span>${esc(c.data_aniversario_formatado || c.data_aniversario)}</span>
+                        ${c.telefone ? `<a href="https://wa.me/55${esc(c.telefone.replace(/\D/g, ''))}" target="_blank" class="aniv-whatsapp">Enviar WhatsApp</a>` : ''}
                     </div>
                 `;
                 lista.appendChild(item);
