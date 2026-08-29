@@ -2547,6 +2547,30 @@ textarea:focus {
     margin-bottom: 1rem;
 }
 
+.auth-forgot {
+    display: block;
+    margin-top: 0.75rem;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+}
+
+.auth-forgot:hover {
+    text-decoration: underline;
+}
+
+.auth-helper {
+    font-size: 0.9rem;
+    color: var(--gray-500);
+    margin-bottom: 1rem;
+}
+
 .pagamento-banner {
     max-width: 1200px;
     margin: 1rem auto 0;

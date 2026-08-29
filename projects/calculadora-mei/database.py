@@ -8,10 +8,11 @@ import ssl
 import asyncpg
 from datetime import datetime, timedelta, timezone
 
-RAW_DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://sisgersa_app:ixnU2aktneWNQhJoqiiKRQs033NSUnM5@dpg-d9hqikr7uimc73dt3e0g-a.oregon-postgres.render.com/sisgersa"
-)
+RAW_DATABASE_URL = os.environ.get("DATABASE_URL")
+if not RAW_DATABASE_URL:
+    raise RuntimeError(
+        "Variável de ambiente DATABASE_URL é obrigatória (ex.: definida no Render)."
+    )
 
 
 def _parse_database_url(url: str) -> dict:
@@ -150,6 +151,15 @@ async def init_db():
                 ativo BOOLEAN DEFAULT TRUE,
                 criado_em TEXT DEFAULT (NOW()::TEXT)
             );
+
+            CREATE TABLE IF NOT EXISTS mei_reset_tokens (
+                id SERIAL PRIMARY KEY,
+                email TEXT NOT NULL,
+                token TEXT UNIQUE NOT NULL,
+                expira_em TEXT NOT NULL,
+                usado BOOLEAN DEFAULT FALSE,
+                criado_em TEXT DEFAULT (NOW()::TEXT)
+            );
         """)
 
         for tabela in ("mei_produtos", "mei_vendas", "mei_despesas", "mei_clientes", "mei_assinaturas"):
@@ -212,6 +222,56 @@ async def revogar_sessao(token: str):
     p = await get_pool()
     async with p.acquire() as conn:
         await conn.execute("DELETE FROM mei_sessoes WHERE token=$1", token)
+
+
+async def criar_token_reset(email: str, token: str, expira_em: str):
+    """Grava token de redefinicao de senha (unico por email)."""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute("DELETE FROM mei_reset_tokens WHERE email=$1", email)
+        await conn.execute(
+            "INSERT INTO mei_reset_tokens (email, token, expira_em) VALUES ($1,$2,$3)",
+            email, token, expira_em
+        )
+
+
+async def obter_token_reset(token: str) -> dict | None:
+    p = await get_pool()
+    async with p.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT id, email, token, expira_em, usado FROM mei_reset_tokens WHERE token=$1",
+            token
+        )
+        return dict(row) if row else None
+
+
+async def marcar_token_reset_usado(token: str) -> None:
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute(
+            "UPDATE mei_reset_tokens SET usado=TRUE WHERE token=$1", token
+        )
+
+
+async def limpar_token_reset(token: str) -> None:
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute("DELETE FROM mei_reset_tokens WHERE token=$1", token)
+
+
+async def atualizar_senha_usuario(usuario_id: int, senha_hash: str) -> bool:
+    """Atualiza a senha de um usuario (remapeamento administrativo de senha esquecida)."""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute(
+                "DELETE FROM mei_sessoes WHERE usuario_id=$1", usuario_id
+            )
+            result = await conn.execute(
+                "UPDATE mei_usuarios SET senha_hash=$1 WHERE id=$2",
+                senha_hash, usuario_id
+            )
+            return result.endswith(" 1")
 
 
 async def excluir_usuario(usuario_id: int) -> bool:

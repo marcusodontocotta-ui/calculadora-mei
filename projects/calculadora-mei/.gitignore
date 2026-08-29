@@ -1,0 +1,17 @@
+# Ambiente / credenciais
+.env
+.env.*
+*.env
+!*.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.python-version
+
+# Testes/artefatos locais
+.pytest_cache/
+*.log

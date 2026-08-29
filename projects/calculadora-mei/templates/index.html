@@ -34,6 +34,7 @@
                 <button type="button" class="btn btn-nav" id="btnAbrirCadastro">Criar conta</button>
             </div>
             <div class="nav-user" id="navAutenticado" style="display:none;">
+                <a href="/dashboard" class="btn btn-nav">Meus Ganhos</a>
                 <span class="nav-user-name" id="navUserName"></span>
                 <button type="button" class="btn btn-nav" id="btnSair">Sair</button>
             </div>
@@ -397,424 +398,6 @@
                    - Se esta no teto<br>
                    - Se pode emitir NF-e</p>
                 <div class="tutorial-tip">Dica: Anote o valor e pague ate dia 20!</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- MEUS GANHOS -->
-<section class="earnings-section" id="ganhos">
-    <div class="container">
-        <h2 class="section-title">Meus Ganhos</h2>
-        <p class="section-subtitle">Registre vendas, cadastre produtos e veja seu lucro real</p>
-
-        <!-- Tabs internas -->
-        <div class="earnings-tabs">
-            <button class="earnings-tab active" data-earningstab="produtos">
-                <span class="tab-icon">*</span> Produtos
-            </button>
-            <button class="earnings-tab" data-earningstab="vendas">
-                <span class="tab-icon">$</span> Vendas
-            </button>
-            <button class="earnings-tab" data-earningstab="despesas">
-                <span class="tab-icon">-</span> Despesas
-            </button>
-            <button class="earnings-tab" data-earningstab="resumo">
-                <span class="tab-icon">#</span> Resumo
-            </button>
-            <button class="earnings-tab" data-earningstab="anual">
-                <span class="tab-icon">!</span> Limite Anual
-            </button>
-            <button class="earnings-tab" data-earningstab="clientes">
-                <span class="tab-icon">@</span> Clientes
-            </button>
-        </div>
-
-        <!-- Tab: Produtos -->
-        <div class="earnings-content active" id="earningstab-produtos">
-            <div class="form-card">
-                <h3>Cadastrar Produto/Servico</h3>
-                <p class="form-desc">Cadastre seus produtos uma vez e selecione na hora de registrar a venda.</p>
-                <form id="formProduto">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Nome do Produto/Servico *</label>
-                            <input type="text" id="prodNome" placeholder="Ex: Bolo de cenoura" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Preco Unitario (R$) *</label>
-                            <input type="number" id="prodPreco" step="0.01" min="0.01" placeholder="0,00" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Categoria</label>
-                            <select id="prodCategoria">
-                                <option value="produto">Produto</option>
-                                <option value="servico">Servico</option>
-                                <option value="insumo">Insumo/Materia-prima</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Unidade</label>
-                            <select id="prodUnidade">
-                                <option value="un">Unidade (un)</option>
-                                <option value="kg">Quilograma (kg)</option>
-                                <option value="lt">Litro (lt)</option>
-                                <option value="mt">Metro (mt)</option>
-                                <option value="cx">Caixa (cx)</option>
-                                <option value="par">Par</option>
-                                <option value="dz">Duzia (dz)</option>
-                                <option value="pc">Peca (pc)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Data de fabricacao</label>
-                            <input type="date" id="prodFabricacao">
-                        </div>
-                        <div class="form-group">
-                            <label>Data de validade</label>
-                            <input type="date" id="prodValidade">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Codigo de barras (opcional)</label>
-                            <input type="text" id="prodCodigo" placeholder="7891234567890">
-                            <button type="button" class="btn btn-action-inline" id="btnScanBarcode">Escanear codigo</button>
-                        </div>
-                        <div class="form-group">
-                            <label>Quantidade em estoque</label>
-                            <input type="number" id="prodEstoque" value="0" min="0">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Link da foto do produto</label>
-                            <input type="url" id="prodFoto" placeholder="Cole o link aqui (ex: www.fotos.com/bolo.jpg)">
-                            <small class="form-hint">Se nao tiver link, pode deixar em branco</small>
-                            <button type="button" class="btn btn-action-inline" id="btnTakePhoto">Tirar foto</button>
-                            <div id="fotoPreviewContainer" class="foto-preview-container" style="display:none;">
-                                <img id="fotoPreview" class="foto-preview-img" alt="Preview">
-                                <button type="button" class="btn-remove-preview" id="btnRemovePreview">X</button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Observacoes</label>
-                            <input type="text" id="prodDescricao" placeholder="Detalhes adicionais">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Salvar produto</button>
-                </form>
-            </div>
-
-            <!-- Lista de Produtos -->
-            <div class="form-card">
-                <h3>Produtos Cadastrados</h3>
-                <div id="listaProdutos" class="products-grid">
-                    <p class="empty-state">Nenhum produto cadastrado ainda.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab: Vendas -->
-        <div class="earnings-content" id="earningstab-vendas">
-            <div class="form-card">
-                <h3>Registrar Venda</h3>
-                <form id="formVenda">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Produto</label>
-                            <select id="venProduto">
-                                <option value="">Selecione um produto...</option>
-                            </select>
-                            <small class="form-hint">Ou preencha manualmente abaixo</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Data da Venda</label>
-                            <input type="date" id="venData">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Descricao</label>
-                            <input type="text" id="venDescricao" placeholder="Descricao da venda" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Cliente</label>
-                            <select id="venCliente">
-                                <option value="">Cliente nao cadastrado</option>
-                            </select>
-                            <small class="form-hint">Ou cadastre na aba Meus Clientes</small>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Valor Unitario (R$)</label>
-                            <input type="number" id="venValor" step="0.01" min="0.01" placeholder="0,00" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Quantidade</label>
-                            <input type="number" id="venQuantidade" value="1" min="1">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Valor Total</label>
-                            <input type="text" id="venTotal" readonly class="readonly-field" value="R$ 0,00">
-                        </div>
-                        <div class="form-group" style="display:flex; align-items:flex-end;">
-                            <button type="submit" class="btn btn-primary">Registrar Venda</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Lista de Vendas do Mes -->
-            <div class="form-card">
-                <h3>Vendas do Mes</h3>
-                <div id="listaVendas" class="vendas-list">
-                    <p class="empty-state">Nenhuma venda registrada este mes.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab: Resumo -->
-        <div class="earnings-content" id="earningstab-resumo">
-            <div class="dashboard" id="resumoDashboard">
-                <div class="card card-info">
-                    <div class="card-icon">$</div>
-                    <div class="card-content">
-                        <h3>Total Vendas</h3>
-                        <p class="card-value" id="resVendas">R$ 0,00</p>
-                        <p class="card-sub" id="resQtdVendas">0 vendas</p>
-                    </div>
-                </div>
-                <div class="card card-info">
-                    <div class="card-icon">-</div>
-                    <div class="card-content">
-                        <h3>Total Despesas</h3>
-                        <p class="card-value" id="resDespesas">R$ 0,00</p>
-                        <p class="card-sub">Custos do mes</p>
-                    </div>
-                </div>
-                <div class="card card-info">
-                    <div class="card-icon">!</div>
-                    <div class="card-content">
-                        <h3>DAS</h3>
-                        <p class="card-value" id="resDas">R$ 0,00</p>
-                        <p class="card-sub" id="resDasVenc">Vence dia 20</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lucro -->
-            <div class="resultado" id="resultadoLucro">
-                <div class="resultado-grid">
-                    <div class="resultado-item">
-                        <span class="label">Lucro Bruto</span>
-                        <span class="value" id="resLucroBruto">R$ 0,00</span>
-                    </div>
-                    <div class="resultado-item">
-                        <span class="label">Lucro Liquido</span>
-                        <span class="value" id="resLucroLiquido">R$ 0,00</span>
-                    </div>
-                    <div class="resultado-item highlight">
-                        <span class="label">Margem de Lucro</span>
-                        <span class="value" id="resMargem">0%</span>
-                    </div>
-                    <div class="resultado-item">
-                        <span class="label">Eficiencia</span>
-                        <span class="value" id="resEficiencia">-</span>
-                    </div>
-                </div>
-                <div class="alert-box" id="resStatus" style="display:none;">
-                    <span id="resStatusIcon"></span>
-                    <span id="resStatusText"></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab: Despesas -->
-        <div class="earnings-content" id="earningstab-despesas">
-            <div class="form-card">
-                <h3>Suas Despesas</h3>
-                <p class="form-desc">Anote o que voce gasta por mes para saber seu lucro de verdade.</p>
-                <form id="formDespesa">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>O que voce pagou? *</label>
-                            <input type="text" id="despDescricao" placeholder="Ex: Aluguel, Internet, Material" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Valor (R$) *</label>
-                            <input type="number" id="despValor" step="0.01" min="0.01" placeholder="0,00" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Data da despesa</label>
-                            <input type="date" id="despData">
-                        </div>
-                        <div class="form-group">
-                            <label>Tipo de despesa</label>
-                            <select id="despCategoria">
-                                <option value="fixa">Fixa (todo mes)</option>
-                                <option value="variavel">Variavel (muda todo mes)</option>
-                                <option value="material">Material / Materia-prima</option>
-                                <option value="transporte">Transporte / Frete</option>
-                                <option value="servico">Servicos (contador, advogado, etc.)</option>
-                                <option value="imposto">Impostos / Taxas</option>
-                                <option value="outro">Outro</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Adicionar despesa</button>
-                </form>
-            </div>
-
-            <!-- Lista de Despesas -->
-            <div class="form-card">
-                <h3>Despesas do Mes</h3>
-                <div class="despesas-filtro">
-                    <select id="filtroDespesaMes" onchange="carregarDespesas()">
-                        <option value="1">Janeiro</option>
-                        <option value="2">Fevereiro</option>
-                        <option value="3">Marco</option>
-                        <option value="4">Abril</option>
-                        <option value="5">Maio</option>
-                        <option value="6">Junho</option>
-                        <option value="7" selected>Julho</option>
-                        <option value="8">Agosto</option>
-                        <option value="9">Setembro</option>
-                        <option value="10">Outubro</option>
-                        <option value="11">Novembro</option>
-                        <option value="12">Dezembro</option>
-                    </select>
-                    <span id="totalDespesasMes" class="despesas-total">R$ 0,00</span>
-                </div>
-                <div id="listaDespesas">
-                    <p class="empty-state">Nenhuma despesa registrada este mes.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab: Limite Anual -->
-        <div class="earnings-content" id="earningstab-anual">
-            <div class="form-card">
-                <h3>Quanto voce ja faturou em 2025?</h3>
-                <p class="form-desc">Veja se esta perto do limite de R$ 81 mil. Se passar, pode perder o beneficio do MEI.</p>
-
-                <div class="limite-anual-container">
-                    <div class="limite-info">
-                        <div class="limite-item">
-                            <span class="limite-label">Voce ja faturou</span>
-                            <span class="limite-valor" id="faturamentoAnual">R$ 0,00</span>
-                        </div>
-                        <div class="limite-item">
-                            <span class="limite-label">Limite do MEI</span>
-                            <span class="limite-valor limite-teto">R$ 81.000,00</span>
-                        </div>
-                        <div class="limite-item">
-                            <span class="limite-label">Quanto falta</span>
-                            <span class="limite-valor" id="restanteAnual">R$ 81.000,00</span>
-                        </div>
-                    </div>
-
-                    <!-- Barra de progresso -->
-                    <div class="limite-barra-container">
-                        <div class="limite-barra">
-                            <div class="limite-barra-preenchida" id="barraAnual" style="width: 0%"></div>
-                        </div>
-                        <div class="limite-porcentagem" id="porcentagemAnual">0%</div>
-                    </div>
-
-                    <!-- Alertas automaticos -->
-                    <div class="limite-alertas" id="alertasAnual">
-                        <!-- Preenchido via JS -->
-                    </div>
-
-                    <!-- Historico mensal -->
-                    <div class="historico-mensal">
-                        <h4>Faturamento mes a mes</h4>
-                        <div id="historicoMensal">
-                            <!-- Preenchido via JS -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab: Clientes -->
-        <div class="earnings-content" id="earningstab-clientes">
-            <div class="form-card">
-                <h3>Cadastrar Cliente</h3>
-                <p class="form-desc">Registre seus clientes para acompanhar quem compra mais e mandar parabens no aniversario.</p>
-                <form id="formCliente">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Nome *</label>
-                            <input type="text" id="cliNome" placeholder="Nome do cliente" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Telefone / WhatsApp</label>
-                            <input type="tel" id="cliTelefone" placeholder="(11) 99999-9999">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>E-mail</label>
-                            <input type="email" id="cliEmail" placeholder="cliente@email.com">
-                        </div>
-                        <div class="form-group">
-                            <label>Aniversario</label>
-                            <input type="date" id="cliAniversario">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Produto preferido</label>
-                            <input type="text" id="cliProduto" placeholder="Ex: Bolo de chocolate">
-                        </div>
-                        <div class="form-group">
-                            <label>Frequencia de compra</label>
-                            <select id="cliPeriodicidade">
-                                <option value="">Selecione...</option>
-                                <option value="diario">Diario</option>
-                                <option value="semanal">Semanal</option>
-                                <option value="quinzenal">Quinzenal</option>
-                                <option value="mensal">Mensal</option>
-                                <option value="avulso">Avulso / Especial</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Endereco</label>
-                        <input type="text" id="cliEndereco" placeholder="Rua, numero, bairro">
-                    </div>
-                    <div class="form-group">
-                        <label>Observacoes</label>
-                        <textarea id="cliObservacoes" rows="2" placeholder="Ex: Gosta de chocolate, prefere entrega a noite..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Salvar cliente</button>
-                </form>
-            </div>
-
-            <div class="form-card" id="cardAniversarios" style="display:none;">
-                <h3>Aniversariantes do Mes</h3>
-                <div id="listaAniversarios"></div>
-            </div>
-
-            <div class="form-card">
-                <h3>Seus Clientes</h3>
-                <div class="busca-clientes">
-                    <input type="text" id="buscaCliente" placeholder="Buscar por nome..." oninput="buscarClientes()">
-                </div>
-                <div id="listaClientes">
-                    <p class="empty-state">Nenhum cliente cadastrado ainda.</p>
-                </div>
             </div>
         </div>
     </div>
@@ -1199,7 +782,7 @@
             </div>
         </div>
         <p class="footer-disclaimer">Valores baseados na legislacao vigente (Lei 12.846/2013 e Lei 14.848/2024). Consulte um contador para orientacao especifica.</p>
-        <p class="footer-copy">2025 Calculadora MEI. Todos os direitos reservados.</p>
+        <p class="footer-copy">2026 Calculadora MEI. Todos os direitos reservados.</p>
     </div>
 </footer>
 
@@ -1225,6 +808,29 @@
                     <input type="password" id="authLoginSenha" placeholder="Sua senha" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-primary btn-block" id="btnFazerLogin">Entrar</button>
+                <button type="button" class="auth-forgot" id="btnEsqueciSenha">Esqueci minha senha</button>
+            </form>
+            <form id="authRecuperarForm" class="auth-form" style="display:none;">
+                <p class="auth-helper">Digite seu e-mail e enviaremos um codigo para redefinir sua senha.</p>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="authRecEmail" placeholder="seu@email.com" required autocomplete="email">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="btnEnviarCodigo">Enviar codigo</button>
+                <button type="button" class="auth-forgot" id="btnVoltarLogin1">Voltar ao login</button>
+            </form>
+            <form id="authRedefinirForm" class="auth-form" style="display:none;">
+                <p class="auth-helper">Digite o codigo recebido por e-mail e sua nova senha.</p>
+                <div class="form-group">
+                    <label>Codigo recebido</label>
+                    <input type="text" id="authRedefCodigo" placeholder="XXXX" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Nova senha</label>
+                    <input type="password" id="authRedefSenha" placeholder="Minimo 6 caracteres" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Redefinir senha</button>
+                <button type="button" class="auth-forgot" id="btnVoltarLogin2">Voltar ao login</button>
             </form>
             <form id="authCadastroForm" class="auth-form" style="display:none;">
                 <div class="form-group">

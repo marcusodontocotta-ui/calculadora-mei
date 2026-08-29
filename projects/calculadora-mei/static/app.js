@@ -50,21 +50,27 @@ function fecharMenu() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const agora = new Date();
-    document.getElementById('mes').value = agora.getMonth() + 1;
-    document.getElementById('ano').value = agora.getFullYear();
+    const paginaDashboard = !!document.getElementById('formProduto');
+    const campoMes = document.getElementById('mes');
+    const campoAno = document.getElementById('ano');
+    if (campoMes) campoMes.value = agora.getMonth() + 1;
+    if (campoAno) campoAno.value = agora.getFullYear();
 
     // Data padrao para venda = hoje
     const venData = document.getElementById('venData');
     if (venData) venData.value = agora.toISOString().split('T')[0];
 
-    carregarDashboard();
-    carregarProdutos();
-    carregarResumoMes();
-    carregarDespesas();
-    carregarLimiteAnual();
-    carregarClientes();
-    carregarClientesSelect();
-    carregarAniversariantes();
+    if (paginaDashboard) {
+        carregarProdutos();
+        carregarResumoMes();
+        carregarDespesas();
+        carregarLimiteAnual();
+        carregarClientes();
+        carregarClientesSelect();
+        carregarAniversariantes();
+    } else {
+        carregarDashboard();
+    }
     tratarRetornoPagamento();
     verificarSessao();
 
@@ -108,10 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // DAS Form
-    document.getElementById('formDAS').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await calcularDAS();
-    });
+    const formDAS = document.getElementById('formDAS');
+    if (formDAS) {
+        formDAS.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await calcularDAS();
+        });
+    }
 
     // Simular button
     const btnSimular = document.getElementById('btnSimular');
@@ -190,6 +199,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnSair) btnSair.addEventListener('click', logout);
     if (authLoginForm) authLoginForm.addEventListener('submit', async (e) => { e.preventDefault(); await login(); });
     if (authCadastroForm) authCadastroForm.addEventListener('submit', async (e) => { e.preventDefault(); await cadastro(); });
+
+    const btnEsqueciSenha = document.getElementById('btnEsqueciSenha');
+    const authRecuperarForm = document.getElementById('authRecuperarForm');
+    const authRedefinirForm = document.getElementById('authRedefinirForm');
+    if (btnEsqueciSenha) btnEsqueciSenha.addEventListener('click', () => mostrarAuthView('recuperar'));
+    if (authRecuperarForm) authRecuperarForm.addEventListener('submit', async (e) => { e.preventDefault(); await solicitarReset(); });
+    if (authRedefinirForm) authRedefinirForm.addEventListener('submit', async (e) => { e.preventDefault(); await confirmarReset(); });
+    const btnVoltar1 = document.getElementById('btnVoltarLogin1');
+    const btnVoltar2 = document.getElementById('btnVoltarLogin2');
+    if (btnVoltar1) btnVoltar1.addEventListener('click', () => mostrarAuthView('login'));
+    if (btnVoltar2) btnVoltar2.addEventListener('click', () => mostrarAuthView('login'));
 
     document.querySelectorAll('.auth-tab').forEach(tab => {
         tab.addEventListener('click', () => switchAuthTab(tab.dataset.authtab));
@@ -284,15 +304,19 @@ function pintarBloqueioLoginTudo() {
 }
 
 function carregarDadosAutenticados() {
-    carregarDashboard();
-    carregarProdutos();
-    carregarVendasMes();
-    carregarResumoMes();
-    carregarDespesas();
-    carregarLimiteAnual();
-    carregarClientes();
-    carregarClientesSelect();
-    carregarAniversariantes();
+    if (document.getElementById('listaProdutos')) {
+        carregarProdutos();
+        carregarVendasMes();
+        carregarResumoMes();
+        carregarDespesas();
+        carregarLimiteAnual();
+        carregarClientes();
+        carregarClientesSelect();
+        carregarAniversariantes();
+    }
+    if (document.getElementById('cardAlerta')) {
+        carregarDashboard();
+    }
 }
 
 async function verificarSessao() {
@@ -334,12 +358,109 @@ function fecharModalAuth() {
     setAuthMessage('', '');
 }
 
+function redirecionarParaPainel() {
+    if (document.getElementById('formProduto')) return;
+    if (window.location.pathname.startsWith('/dashboard')) return;
+    window.location.href = '/dashboard';
+}
+
+function mostrarAuthView(view) {
+    const loginForm = document.getElementById('authLoginForm');
+    const cadForm = document.getElementById('authCadastroForm');
+    const recForm = document.getElementById('authRecuperarForm');
+    const redefForm = document.getElementById('authRedefinirForm');
+    const tabsCont = document.querySelector('.auth-tabs');
+    const title = document.getElementById('authModalTitle');
+
+    if (view === 'recuperar' || view === 'redefinir') {
+        if (tabsCont) tabsCont.style.display = 'none';
+        if (loginForm) loginForm.style.display = 'none';
+        if (cadForm) cadForm.style.display = 'none';
+        if (recForm) recForm.style.display = view === 'recuperar' ? 'block' : 'none';
+        if (redefForm) redefForm.style.display = view === 'redefinir' ? 'block' : 'none';
+        if (title) title.textContent = view === 'recuperar' ? 'Recuperar senha' : 'Criar nova senha';
+    } else {
+        const isLogin = view === 'login';
+        if (tabsCont) tabsCont.style.display = '';
+        if (loginForm) loginForm.style.display = isLogin ? 'block' : 'none';
+        if (cadForm) cadForm.style.display = isLogin ? 'none' : 'block';
+        if (recForm) recForm.style.display = 'none';
+        if (redefForm) redefForm.style.display = 'none';
+        if (title) title.textContent = isLogin ? 'Acesse sua conta' : 'Crie sua conta';
+    }
+    setAuthMessage('', '');
+}
+
+async function solicitarReset() {
+    const email = document.getElementById('authRecEmail').value.trim();
+    if (!email) {
+        setAuthMessage('Informe seu e-mail.', 'erro');
+        return;
+    }
+    setAuthMessage('Enviando codigo...', 'info');
+    try {
+        const resp = await fetch('/api/auth/recuperar-senha', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+            setAuthMessage(data.mensagem || 'Codigo enviado para seu e-mail.', 'info');
+            mostrarAuthView('redefinir');
+        } else {
+            setAuthMessage(data.detail || data.mensagem || 'Erro ao enviar codigo.', 'erro');
+        }
+    } catch (error) {
+        console.error('Erro ao solicitar reset:', error);
+        setAuthMessage('Erro de conexao. Tente novamente.', 'erro');
+    }
+}
+
+async function confirmarReset() {
+    const codigo = document.getElementById('authRedefCodigo').value.trim();
+    const novaSenha = document.getElementById('authRedefSenha').value;
+    if (!codigo || novaSenha.length < 6) {
+        setAuthMessage('Preencha o codigo e uma senha de pelo menos 6 caracteres.', 'erro');
+        return;
+    }
+    setAuthMessage('Redefinindo senha...', 'info');
+    try {
+        const resp = await fetch('/api/auth/redefinir-senha', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigo, nova_senha: novaSenha })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+            setAuthMessage(data.mensagem || 'Senha redefinida com sucesso.', 'info');
+            mostrarAuthView('login');
+            const emailEl = document.getElementById('authLoginEmail');
+            if (emailEl) emailEl.value = '';
+            const senhaEl = document.getElementById('authLoginSenha');
+            if (senhaEl) senhaEl.value = novaSenha;
+            if (emailEl) emailEl.focus();
+        } else {
+            setAuthMessage(data.detail || data.mensagem || 'Codigo invalido ou expirado.', 'erro');
+        }
+    } catch (error) {
+        console.error('Erro ao redefinir senha:', error);
+        setAuthMessage('Erro de conexao. Tente novamente.', 'erro');
+    }
+}
+
 function switchAuthTab(tab) {
     const isLogin = tab === 'login';
     const loginForm = document.getElementById('authLoginForm');
     const cadForm = document.getElementById('authCadastroForm');
+    const recForm = document.getElementById('authRecuperarForm');
+    const redefForm = document.getElementById('authRedefinirForm');
+    const tabsCont = document.querySelector('.auth-tabs');
+    if (tabsCont) tabsCont.style.display = '';
     if (loginForm) loginForm.style.display = isLogin ? 'block' : 'none';
     if (cadForm) cadForm.style.display = isLogin ? 'none' : 'block';
+    if (recForm) recForm.style.display = 'none';
+    if (redefForm) redefForm.style.display = 'none';
     document.querySelectorAll('.auth-tab').forEach(b => {
         b.classList.toggle('active', b.dataset.authtab === tab);
     });
@@ -391,6 +512,7 @@ async function cadastro() {
             atualizarUI();
             carregarDadosAutenticados();
             mostrarToast('Conta criada com sucesso. Bem-vindo(a)!', 'sucesso');
+            redirecionarParaPainel();
         } else {
             setAuthMessage(data.detail || data.motivo || data.mensagem || 'Erro ao criar conta. Tente novamente.', 'erro');
         }
@@ -425,6 +547,7 @@ async function login() {
             atualizarUI();
             carregarDadosAutenticados();
             mostrarToast('Login realizado com sucesso. Bem-vindo(a)!', 'sucesso');
+            redirecionarParaPainel();
         } else {
             setAuthMessage(data.detail || data.motivo || data.mensagem || 'E-mail ou senha incorretos.', 'erro');
         }
@@ -452,6 +575,11 @@ async function logout() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function carregarDashboard() {
+    const cardAlerta = document.getElementById('cardAlerta');
+    const alertaValor = document.getElementById('alertaValor');
+    const alertaSub = document.getElementById('alertaSub');
+    if (!cardAlerta || !alertaValor || !alertaSub) return;
+
     try {
         const resp = await apiFetch('/api/dashboard');
         const data = await resp.json();
@@ -460,11 +588,10 @@ async function carregarDashboard() {
 
         if (data.sucesso) {
             const alerta = data.alerta;
-            const cardAlerta = document.getElementById('cardAlerta');
 
-            document.getElementById('alertaValor').textContent =
+            alertaValor.textContent =
                 alerta.dias_restantes > 0 ? `${alerta.dias_restantes} dias` : 'VENCIDO!';
-            document.getElementById('alertaSub').textContent = alerta.mensagem;
+            alertaSub.textContent = alerta.mensagem;
 
             if (alerta.nivel === 'critico' || alerta.nivel === 'vencido') {
                 const headerAlert = document.getElementById('headerAlert');
@@ -810,8 +937,10 @@ async function registrarVenda() {
 }
 
 async function carregarVendasMes() {
-    const mes = parseInt(document.getElementById('mes').value) || new Date().getMonth() + 1;
-    const ano = parseInt(document.getElementById('ano').value) || new Date().getFullYear();
+    const campoMes = document.getElementById('mes');
+    const campoAno = document.getElementById('ano');
+    const mes = parseInt(campoMes ? campoMes.value : '') || new Date().getMonth() + 1;
+    const ano = parseInt(campoAno ? campoAno.value : '') || new Date().getFullYear();
 
     try {
         const resp = await apiFetch(`/api/vendas?mes=${mes}&ano=${ano}`);
@@ -876,8 +1005,10 @@ async function excluirVenda(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function carregarResumoMes() {
-    const mes = parseInt(document.getElementById('mes').value) || new Date().getMonth() + 1;
-    const ano = parseInt(document.getElementById('ano').value) || new Date().getFullYear();
+    const campoMes = document.getElementById('mes');
+    const campoAno = document.getElementById('ano');
+    const mes = parseInt(campoMes ? campoMes.value : '') || new Date().getMonth() + 1;
+    const ano = parseInt(campoAno ? campoAno.value : '') || new Date().getFullYear();
 
     try {
         const resp = await apiFetch(`/api/resumo-mensal?mes=${mes}&ano=${ano}`);
@@ -940,7 +1071,8 @@ async function registrarDespesa() {
 }
 
 async function carregarDespesas() {
-    const mes = parseInt(document.getElementById('filtroDespesaMes').value);
+    const filtroEl = document.getElementById('filtroDespesaMes');
+    const mes = filtroEl ? parseInt(filtroEl.value) : new Date().getMonth() + 1;
     const ano = new Date().getFullYear();
 
     try {

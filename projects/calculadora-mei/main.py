@@ -207,6 +207,55 @@ def _expira_em() -> str:
     return (datetime.now() + timedelta(days=30)).isoformat()
 
 
+def _expira_em_minutos(minutos: int) -> str:
+    return (datetime.now() + timedelta(minutes=minutos)).isoformat()
+
+
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+RESEND_FROM = os.environ.get("RESEND_FROM", "onboarding@resend.dev")
+
+
+async def enviar_email_reset(email: str, codigo: str, nome: str) -> bool:
+    """Envia e-mail de redefinicao de senha via Resend. Retorna False se nao configurado."""
+    if not RESEND_API_KEY:
+        return False
+    html = (
+        "<div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto'>"
+        "<h2 style='color:#2563eb'>Calculadora MEI</h2>"
+        f"<p>Ola, <strong>{nome or 'usuario'}</strong>!</p>"
+        "<p>Recebemos um pedido para redefinir a senha da sua conta."
+        " Use o codigo abaixo para definir uma nova senha:</p>"
+        "<div style='background:#eff6ff;border:2px dashed #2563eb;border-radius:8px;"
+        "padding:16px;text-align:center;font-size:28px;font-weight:700;"
+        "letter-spacing:6px;color:#1e3a8a;margin:24px 0'>" + codigo + "</div>"
+        "<p>Este codigo expira em <strong>15 minutos</strong>.</p>"
+        "<p>Se voce nao pediu, pode ignorar este e-mail.</p>"
+        "<p style='color:#6b7280;font-size:12px'>Calculadora MEI - "
+        "https://calculadora-mei.onrender.com</p>"
+        "</div>"
+    )
+    url = email.strip().lower()
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": RESEND_FROM,
+                    "to": [url],
+                    "subject": "Redefinicao de senha - Calculadora MEI",
+                    "html": html,
+                },
+            )
+            return resp.status_code in (200, 201)
+    except Exception as e:
+        print(f"[Email] Erro ao enviar reset via Resend: {e}")
+        return False
+
+
 async def usuario_atual(authorization: str = Header(None)) -> dict:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Token nao fornecido")
@@ -397,6 +446,12 @@ async def root():
         return HTMLResponse(content=f.read())
 
 
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page():
+    with open("templates/dashboard.html", "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
+
+
 @app.get("/termos", response_class=HTMLResponse)
 async def termos():
     with open("templates/termos.html", "r", encoding="utf-8") as f:
@@ -485,6 +540,67 @@ async def logout(authorization: str = Header(None)):
     if authorization and authorization.startswith("Bearer "):
         await database.revogar_sessao(authorization[7:].strip())
     return {"sucesso": True, "mensagem": "Sessao encerrada"}
+
+
+class RecuperarSenhaRequest(BaseModel):
+    email: str = Field(..., description="Email do usuario")
+
+
+class RedefinirSenhaRequest(BaseModel):
+    codigo: str = Field(..., description="Codigo recebido por email")
+    nova_senha: str = Field(..., min_length=6, description="Nova senha")
+
+
+@app.post("/api/auth/recuperar-senha")
+async def recuperar_senha(req: RecuperarSenhaRequest):
+    email = (req.email or "").strip().lower()
+    if not EMAIL_REGEX.match(email):
+        raise HTTPException(status_code=400, detail="Email invalido")
+
+    usuario = await database.obter_usuario_por_email(email)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Email nao cadastrado")
+
+    codigo = secrets.token_hex(4).upper()
+    await database.criar_token_reset(email, codigo, _expira_em_minutos(15))
+
+    enviado = await enviar_email_reset(email, codigo, usuario.get("nome", ""))
+    if not enviado:
+        raise HTTPException(
+            status_code=503,
+            detail="Servico de email nao configurado. Contate o suporte para redefinir a senha.",
+        )
+
+    return {"sucesso": True, "mensagem": "Codigo de redefinicao enviado para o email."}
+
+
+@app.post("/api/auth/redefinir-senha")
+async def redefinir_senha(req: RedefinirSenhaRequest):
+    codigo = (req.codigo or "").strip().upper()
+    nova_senha = req.nova_senha or ""
+    token = await database.obter_token_reset(codigo)
+    if not token:
+        raise HTTPException(status_code=400, detail="Codigo invalido ou ja utilizado")
+    if token.get("usado"):
+        raise HTTPException(status_code=400, detail="Codigo invalido ou ja utilizado")
+    try:
+        expira = datetime.fromisoformat(token["expira_em"])
+    except Exception:
+        expira = datetime.now()
+    if expira < datetime.now():
+        raise HTTPException(status_code=400, detail="Codigo expirado. Solicite um novo.")
+    if len(nova_senha) < 6:
+        raise HTTPException(status_code=400, detail="Senha deve ter pelo menos 6 caracteres")
+
+    usuario = await database.obter_usuario_por_email(token["email"])
+    if not usuario:
+        raise HTTPException(status_code=400, detail="Conta nao encontrada")
+
+    salt = _gerar_salt()
+    await database.atualizar_senha_usuario(usuario["id"], f"{salt}${_hash_senha(nova_senha, salt)}")
+    await database.limpar_token_reset(codigo)
+
+    return {"sucesso": True, "mensagem": "Senha redefinida com sucesso. Faca login com a nova senha."}
 
 
 @app.get("/api/auth/me")
@@ -758,6 +874,30 @@ async def reconciliar_manual(authorization: str = Header(None)):
         raise HTTPException(status_code=403, detail="Nao autorizado")
     await reconciliar_pagamentos()
     return {"sucesso": True, "mensagem": "Reconciliacao executada"}
+
+
+class ResetarSenhaRequest(BaseModel):
+    email: str = Field(..., description="Email do usuario")
+    nova_senha: str = Field(..., min_length=8, description="Nova senha temporaria")
+
+
+@app.post("/api/admin/resetar-senha")
+async def admin_resetar_senha(req: ResetarSenhaRequest, authorization: str = Header(None)):
+    import hmac
+
+    expected = os.environ.get("ADMIN_SECRET", "")
+    if not expected or not authorization or not hmac.compare_digest(authorization, f"Bearer {expected}"):
+        raise HTTPException(status_code=403, detail="Nao autorizado")
+    email = (req.email or "").strip().lower()
+    usuario = await database.obter_usuario_por_email(email)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario nao encontrado")
+    salt = _gerar_salt()
+    novo_hash = _hash_senha(req.nova_senha, salt)
+    atualizado = await database.atualizar_senha_usuario(usuario["id"], f"{salt}${novo_hash}")
+    if not atualizado:
+        raise HTTPException(status_code=500, detail="Falha ao atualizar senha")
+    return {"sucesso": True, "mensagem": "Senha redefinida. Sessoes antigas invalidadas."}
 
 
 @app.get("/api/plano")
