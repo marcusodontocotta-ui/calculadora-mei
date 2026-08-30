@@ -675,6 +675,10 @@ async def criar_checkout(req: AssinaturaRequest, usuario: dict = Depends(usuario
     usuario_id = usuario["id"]
 
     pendente = await database.obter_assinatura_pendente_usuario(usuario_id)
+    if pendente and not pendente.get("mp_subscription_id"):
+        # Pendencia orfa (o MP nunca gerou preapproval) nao deve bloquear o checkout
+        await database.cancelar_assinatura_usuario_pendente(usuario_id)
+        pendente = None
     if pendente:
         criada = pendente.get("criado_em")
         antiga = False
@@ -740,8 +744,19 @@ async def criar_checkout(req: AssinaturaRequest, usuario: dict = Depends(usuario
                 "external_reference": external_reference,
             }
         )
-        dados = resp.json()
-        checkout_url = dados.get("init_point")
+        try:
+            dados = resp.json()
+        except Exception:
+            dados = {}
+        checkout_url = (dados or {}).get("init_point")
+
+        if resp.status_code not in (200, 201) or not checkout_url:
+            erro_mp = (dados or {}).get("message") or (dados or {}).get("error") or f"HTTP {resp.status_code}"
+            print(f"[CHECKOUT] MP preapproval falhou p/ usuario {usuario_id}: {erro_mp}")
+            raise HTTPException(
+                status_code=502,
+                detail="Nao foi possivel gerar o pagamento agora. Tente novamente em instantes.",
+            )
 
         await database.criar_assinatura({
             "usuario_id": usuario_id,

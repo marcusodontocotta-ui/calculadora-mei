@@ -361,6 +361,11 @@ function fecharModalAuth() {
 function redirecionarParaPainel() {
     if (document.getElementById('formProduto')) return;
     if (window.location.pathname.startsWith('/dashboard')) return;
+    if (sessionStorage.getItem('intencaoAssinar') === '1') {
+        sessionStorage.removeItem('intencaoAssinar');
+        window.location.href = '/#plano-pro';
+        return;
+    }
     window.location.href = '/dashboard';
 }
 
@@ -1522,6 +1527,7 @@ async function carregarClientesSelect() {
 
 function assinarPro() {
     if (!userState.token || !userState.autenticado) {
+        sessionStorage.setItem('intencaoAssinar', '1');
         abrirModalAuth('login', 'Entre ou crie sua conta para assinar.');
         return;
     }
@@ -1618,7 +1624,7 @@ async function iniciarAssinatura() {
         }
 
         const data = await resp.json();
-        if (data.sucesso && data.checkout_url) {
+        if (data.checkout_url) {
             if (data.valor_final !== undefined) {
                 const proStatusEl = document.getElementById('proStatus');
                 if (proStatusEl) {
@@ -1627,6 +1633,12 @@ async function iniciarAssinatura() {
                 }
             }
             window.location.href = data.checkout_url;
+            return;
+        }
+        if (data.motivo === 'ja_pendente') {
+            mostrarToast('Você já tem um pagamento pendente. Conclua a compra na janela do Mercado Pago ou tente novamente em alguns minutos.', 'erro');
+        } else if (data.sucesso && !data.checkout_url) {
+            mostrarToast('Não foi possível gerar o pagamento no momento. Tente novamente em instantes.', 'erro');
         } else {
             mostrarToast(data.detail || data.mensagem || 'Erro ao iniciar pagamento. Tente novamente.', 'erro');
         }
