@@ -168,7 +168,12 @@ async def init_db():
             except Exception as e:
                 print(f"[DB] Aviso: coluna usuario_id em {tabela}: {e}")
 
-        for coluna, tipo in (("payment_id", "TEXT"), ("renovacoes", "INTEGER DEFAULT 0")):
+        for coluna, tipo in (
+            ("payment_id", "TEXT"),
+            ("renovacoes", "INTEGER DEFAULT 0"),
+            ("preapproval_id", "TEXT"),
+            ("external_reference", "TEXT"),
+        ):
             try:
                 await conn.execute(f"ALTER TABLE mei_assinaturas ADD COLUMN IF NOT EXISTS {coluna} {tipo}")
             except Exception as e:
@@ -566,6 +571,56 @@ async def criar_assinatura(dados: dict) -> dict:
              dados.get('status','pendente'), dados.get('mp_subscription_id'))
         dados['id'] = row['id']
         return dados
+
+
+async def obter_assinatura_por_preapproval(preapproval_id: str) -> dict | None:
+    """Retorna a assinatura ligada a um preapproval (assinatura recorrente) do Mercado Pago."""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT * FROM mei_assinaturas WHERE mp_subscription_id=$1 ORDER BY id DESC LIMIT 1",
+            preapproval_id
+        )
+        return dict(row) if row else None
+
+
+async def ativar_assinatura_preapproval(assinatura_id: int, preapproval_id: str) -> bool:
+    """Ativa (ou renova) uma assinatura recorrente a partir de um preapproval aprovado.
+
+    data_inicio = agora, data_fim = agora + 30 dias, proximo_pagamento = data_fim.
+    Grava o preapproval_id em mp_subscription_id. Retorna True se renovou uma assinatura
+    que ja esteve ativa (reforco para renovacoes mensais).
+    """
+    p = await get_pool()
+    agora = datetime.now(timezone.utc)
+    data_fim = (agora + timedelta(days=30)).isoformat()
+    async with p.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT status, renovacoes FROM mei_assinaturas WHERE id=$1", assinatura_id
+        )
+        if not row:
+            return False
+        renovadas = row["renovacoes"] or 0
+        if row["status"] in ("ativa", "vencida", "pendente"):
+            renovadas += 1
+        await conn.execute(
+            """UPDATE mei_assinaturas
+               SET status='ativa', data_inicio=$2, data_fim=$3, proximo_pagamento=$3,
+                   mp_subscription_id=$4, renovacoes=$5
+               WHERE id=$1""",
+            assinatura_id, agora.isoformat(), data_fim, preapproval_id, renovadas
+        )
+    return renovadas > 1
+
+
+async def cancelar_assinatura_por_preapproval(preapproval_id: str) -> None:
+    """Marca como cancelada a assinatura ligada a um preapproval cancelado/pausado."""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        await conn.execute(
+            "UPDATE mei_assinaturas SET status='cancelada' WHERE mp_subscription_id=$1",
+            preapproval_id
+        )
 
 
 async def obter_assinatura_usuario(usuario_id: int) -> dict | None:

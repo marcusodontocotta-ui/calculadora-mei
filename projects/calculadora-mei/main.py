@@ -299,8 +299,9 @@ async def _ativa_se_vigente(assinatura: dict | None) -> dict | None:
 async def reconciliar_pagamentos():
     """Garante que nenhum pagamento aprovado fique sem ativar o PRO (webhook perdido).
 
-    1) Expira assinaturas ativas com data_fim vencida.
-    2) Para cada assinatura pendente, consulta a MP por external_reference e ativa se houver pagamento aprovado.
+    1) Expira assinaturas ativas com data_fim vencida (rede de seguranca).
+    2) Consulta a MP por payments approved das assinaturas pendentes (recorrentes via
+       preapproval e antigas de pagamento unico) e ativa se encontrar.
     """
     try:
         expiradas = await database.expirar_assinaturas_vencidas()
@@ -331,20 +332,28 @@ async def reconciliar_pagamentos():
 
 
 async def _ativar_por_pagamento_aprovado(client, assinatura):
-    """Consulta a MP por pagamentos aprovados dessa assinatura e ativa se encontrar."""
+    """Consulta a MP por pagamentos aprovados dessa assinatura (recorrente ou unica) e ativa.
+
+    Busca por external_reference 'meiuser_' (novo, recorrente) e 'usuario_' (legado, pagamento unico).
+    Se o pagamento carrega preapproval_id, resolve a assinatura pelo preapproval e ativa via preapproval.
+    """
     usuario_id = assinatura["usuario_id"]
-    try:
-        resp = await client.get(
-            "https://api.mercadopago.com/v1/payments/search",
-            params={"external_reference": f"usuario_{usuario_id}", "status": "approved"},
-            headers={"Authorization": f"Bearer {MERCADO_PAGO_TOKEN}"}
-        )
-        if resp.status_code != 200:
-            return
-        resultados = resp.json().get("results", [])
-    except Exception as e:
-        print(f"[RECON] Falha ao consultar MP p/ usuario {usuario_id}: {e}")
-        return
+    resultados = []
+    for ref in (f"meiuser_{usuario_id}", f"usuario_{usuario_id}"):
+        try:
+            resp = await client.get(
+                "https://api.mercadopago.com/v1/payments/search",
+                params={"external_reference": ref, "status": "approved"},
+                headers={"Authorization": f"Bearer {MERCADO_PAGO_TOKEN}"}
+            )
+            if resp.status_code != 200:
+                continue
+            resultados = resp.json().get("results", [])
+            if resultados:
+                break
+        except Exception as e:
+            print(f"[RECON] Falha ao consultar MP p/ usuario {usuario_id} (ref={ref}): {e}")
+            continue
 
     for pagamento in resultados:
         pago_id = pagamento.get("id")
@@ -356,20 +365,32 @@ async def _ativar_por_pagamento_aprovado(client, assinatura):
         if pagamento.get("status") != "approved":
             continue
         valor = (pagamento.get("transaction_amount") or 0.0)
+        preapproval_id = pagamento.get("preapproval_id")
+
+        assinatura_alvo = assinatura
+        if preapproval_id:
+            por_pre = await database.obter_assinatura_por_preapproval(str(preapproval_id))
+            if por_pre:
+                assinatura_alvo = por_pre
+
         registrado = await database.registrar_pagamento(
             str(pago_id),
             pagamento.get("preference_id"),
             usuario_id,
-            assinatura["id"],
+            assinatura_alvo["id"],
             "approved",
             valor,
             "reconciliacao",
             str(pagamento)[:1000],
         )
         if registrado:
-            renovou = await database.ativar_assinatura(assinatura["id"], str(pago_id))
+            if preapproval_id:
+                renovou = await database.ativar_assinatura_preapproval(assinatura_alvo["id"], str(preapproval_id))
+            else:
+                renovou = await database.ativar_assinatura(assinatura_alvo["id"], str(pago_id))
             tipo = "renovação" if renovou else "ativação"
-            print(f"[RECON] Assinatura {assinatura['id']} {tipo} via pagamento {pago_id} (R$ {valor:.2f})")
+            print(f"[RECON] Assinatura {assinatura_alvo['id']} {tipo} via pagamento {pago_id} "
+                  f"(usuario {usuario_id}, preapproval {preapproval_id}, R$ {valor:.2f})")
             break
 
 
@@ -696,39 +717,27 @@ async def criar_checkout(req: AssinaturaRequest, usuario: dict = Depends(usuario
         cupom_aplicado = cupom
         valor_unitario = _aplicar_cupom(cupom["percentual"])["valor_final"]
 
-    metadata = {"usuario_id": usuario_id, "email": usuario["email"]}
-    if cupom_aplicado:
-        metadata["cupom"] = cupom_aplicado["codigo"]
+    external_reference = f"meiuser_{usuario_id}"
 
     async with httpx.AsyncClient() as client:
         resp = await client.post(
-            "https://api.mercadopago.com/checkout/preferences",
+            "https://api.mercadopago.com/preapproval",
             headers={
                 "Authorization": f"Bearer {MERCADO_PAGO_TOKEN}",
                 "Content-Type": "application/json"
             },
             json={
-                "items": [{
-                    "id": "plano_pro",
-                    "title": "Calculadora MEI - Plano PRO",
-                    "description": "Plano PRO mensal - Calculadora MEI",
-                    "quantity": 1,
-                    "unit_price": round(valor_unitario, 2),
+                "reason": "Calculadora MEI - Plano PRO (assinatura mensal)",
+                "auto_recurring": {
+                    "frequency": 1,
+                    "frequency_type": "months",
+                    "transaction_amount": round(valor_unitario, 2),
                     "currency_id": "BRL"
-                }],
-                "payer": {
-                    "email": usuario["email"],
-                    "name": usuario["nome"]
                 },
-                "metadata": metadata,
-                "external_reference": f"usuario_{usuario_id}",
+                "payer_email": usuario["email"],
+                "back_url": "https://calculadora-mei.onrender.com",
                 "notification_url": "https://calculadora-mei.onrender.com/api/webhook/mercadopago",
-                "auto_return": "approved",
-                "back_urls": {
-                    "success": "https://calculadora-mei.onrender.com/?pagamento=sucesso",
-                    "pending": "https://calculadora-mei.onrender.com/?pagamento=pendente",
-                    "failure": "https://calculadora-mei.onrender.com/?pagamento=erro"
-                }
+                "external_reference": external_reference,
             }
         )
         dados = resp.json()
@@ -739,13 +748,15 @@ async def criar_checkout(req: AssinaturaRequest, usuario: dict = Depends(usuario
             "email": usuario["email"],
             "nome": usuario["nome"],
             "status": "pendente",
-            "mp_subscription_id": dados.get("id")
+            "mp_subscription_id": dados.get("id"),
+            "external_reference": external_reference,
         })
 
         resposta = {
             "sucesso": True,
             "checkout_url": checkout_url,
             "preference_id": dados.get("id"),
+            "preapproval_id": dados.get("id"),
             "valor": round(valor_unitario, 2)
         }
         if cupom_aplicado:
@@ -754,6 +765,69 @@ async def criar_checkout(req: AssinaturaRequest, usuario: dict = Depends(usuario
             resposta["desconto"] = valores["desconto"]
             resposta["valor_final"] = valores["valor_final"]
         return resposta
+
+
+def _usuario_id_do_external(external_reference: str) -> int | None:
+    """Extrai o usuario_id do external_reference das assinaturas recorrentes (meiuser_) 
+    e das antigas de pagamento unico (usuario_)."""
+    if not external_reference:
+        return None
+    prefixo = None
+    if external_reference.startswith("meiuser_"):
+        prefixo = "meiuser_"
+    elif external_reference.startswith("usuario_"):
+        prefixo = "usuario_"
+    if not prefixo:
+        return None
+    ref_id = external_reference.replace(prefixo, "")
+    if ref_id.isdigit():
+        return int(ref_id)
+    return None
+
+
+async def _ativar_por_preapproval(client, preapproval_id, preapproval=None) -> bool:
+    """Ativa a assinatura do usuario a partir de um preapproval autorizado/ativo."""
+    if preapproval is None:
+        try:
+            resp = await client.get(
+                f"https://api.mercadopago.com/preapproval/{preapproval_id}",
+                headers={"Authorization": f"Bearer {MERCADO_PAGO_TOKEN}"}
+            )
+            if resp.status_code != 200:
+                print(f"[WEBHOOK] Erro ao buscar preapproval {preapproval_id}: HTTP {resp.status_code}")
+                return False
+            preapproval = resp.json()
+        except Exception as e:
+            print(f"[WEBHOOK] Excecao ao buscar preapproval {preapproval_id}: {e}")
+            return False
+    if not preapproval:
+        return False
+    status = preapproval.get("status", "")
+    if status not in ("authorized", "active"):
+        print(f"[WEBHOOK] Preapproval {preapproval_id} nao autorizado (status={status})")
+        return False
+    usuario_id = _usuario_id_do_external(preapproval.get("external_reference") or "")
+    if not usuario_id:
+        print(f"[WEBHOOK] Preapproval {preapproval_id} sem usuario_id em external_reference")
+        return False
+    assinatura = await database.obter_assinatura_por_preapproval(str(preapproval_id))
+    if not assinatura:
+        assinatura = await database.obter_assinatura_pendente_usuario(usuario_id)
+    if not assinatura:
+        assinatura = await database.obter_assinatura_usuario(usuario_id)
+    if not assinatura:
+        print(f"[WEBHOOK] Preapproval {preapproval_id} sem assinatura para usuario {usuario_id}")
+        return False
+    return await database.ativar_assinatura_preapproval(assinatura["id"], str(preapproval_id))
+
+
+async def _desativar_por_preapproval(preapproval_id) -> bool:
+    """Marca como cancelada a assinatura de um preapproval cancelado/pausado."""
+    assinatura = await database.obter_assinatura_por_preapproval(str(preapproval_id))
+    if not assinatura:
+        return False
+    await database.cancelar_assinatura_por_preapproval(str(preapproval_id))
+    return True
 
 
 @app.post("/api/webhook/mercadopago")
@@ -780,10 +854,37 @@ async def webhook_mercadopago(request: Request):
                     print("[WEBHOOK] X-Signature invalida")
                     return {"sucesso": False, "processado": False, "motivo": "assinatura_invalida"}
 
+    tipo_id = dados.get("id")
+
+    if tipo == "preapproval":
+        if not tipo_id:
+            return {"sucesso": True, "processado": False, "motivo": "sem_id"}
+        async with httpx.AsyncClient(timeout=15) as client:
+            try:
+                resp = await client.get(
+                    f"https://api.mercadopago.com/preapproval/{tipo_id}",
+                    headers={"Authorization": f"Bearer {MERCADO_PAGO_TOKEN}"}
+                )
+                preapproval = resp.json() if resp.status_code == 200 else {}
+            except Exception as e:
+                print(f"[WEBHOOK] Excecao ao buscar preapproval {tipo_id}: {e}")
+                preapproval = {}
+        status = preapproval.get("status", "")
+        if status in ("authorized", "active"):
+            ativado = await _ativar_por_preapproval(None, tipo_id, preapproval=preapproval)
+            print(f"[WEBHOOK] Preapproval {tipo_id} ativou assinatura (status={status}, ok={ativado})")
+            return {"sucesso": True, "processado": True, "tipo": "preapproval", "status": status, "ativada": ativado}
+        if status in ("cancelled", "paused"):
+            desativado = await _desativar_por_preapproval(tipo_id)
+            print(f"[WEBHOOK] Preapproval {tipo_id} cancelado (status={status}, ok={desativado})")
+            return {"sucesso": True, "processado": True, "tipo": "preapproval", "status": status, "cancelada": desativado}
+        print(f"[WEBHOOK] Preapproval {tipo_id} status nao tratado: {status}")
+        return {"sucesso": True, "processado": False, "tipo": "preapproval", "status": status}
+
     if tipo != "payment":
         return {"sucesso": True, "processado": False, "motivo": "tipo_ignorado"}
 
-    payment_id = dados.get("id")
+    payment_id = tipo_id
     if not payment_id:
         return {"sucesso": True, "processado": False, "motivo": "sem_payment_id"}
 
@@ -814,14 +915,17 @@ async def webhook_mercadopago(request: Request):
     usuario_id = metadata.get("usuario_id")
     valor = pagamento.get("transaction_amount") or 0.0
     external_ref = pagamento.get("external_reference") or ""
+    preapproval_id = pagamento.get("preapproval_id")
 
     assinatura = None
-    if usuario_id:
+    if preapproval_id:
+        assinatura = await database.obter_assinatura_por_preapproval(str(preapproval_id))
+    if not assinatura and usuario_id:
         assinatura = await database.obter_assinatura_pendente_usuario(usuario_id)
-    if not assinatura and usuario_id and "usuario_" in external_ref:
-        ref_id = external_ref.replace("usuario_", "")
-        if ref_id.isdigit():
-            assinatura = await database.obter_assinatura_usuario(int(ref_id))
+    if not assinatura and (usuario_id or external_ref):
+        ref_id = _usuario_id_do_external(external_ref) or usuario_id
+        if ref_id:
+            assinatura = await database.obter_assinatura_usuario(ref_id)
     if not assinatura and metadata.get("cliente_id"):
         assinatura = await database.obter_assinatura_cliente(metadata["cliente_id"])
     if not assinatura:
@@ -838,10 +942,13 @@ async def webhook_mercadopago(request: Request):
     )
     renovou = False
     if registrado:
-        renovou = await database.ativar_assinatura(assinatura["id"], str(payment_id))
+        if preapproval_id:
+            renovou = await database.ativar_assinatura_preapproval(assinatura["id"], str(preapproval_id))
+        else:
+            renovou = await database.ativar_assinatura(assinatura["id"], str(payment_id))
         print(
             f"[WEBHOOK] Assinatura {assinatura['id']} {'renovada' if renovou else 'ativada'} "
-            f"(usuario {usuario_id}, payment {payment_id}, R$ {valor:.2f})"
+            f"(usuario {usuario_id}, payment {payment_id}, preapproval {preapproval_id}, R$ {valor:.2f})"
         )
     return {"sucesso": True, "processado": True, "renovada": renovou}
 
