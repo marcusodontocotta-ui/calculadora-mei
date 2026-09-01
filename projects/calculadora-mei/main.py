@@ -11,7 +11,10 @@ import secrets
 import shutil
 import socket
 import subprocess
+import threading
+import time
 import uuid
+from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from typing import Optional
@@ -49,6 +52,54 @@ LIMITES_UPLOAD = {
     "tamanho_max": 2 * 1024 * 1024,
     "tipos": {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"},
 }
+
+
+class RateLimiter:
+    """Limitador de taxa em memoria (janela deslizante) por chave (IP/e-mail).
+
+    Abordagem: para cada chave mantemos uma deque de timestamps das ultimas
+    requisicoes. Uma nova requisicao e permitida somente se o numero de
+    ocorrencias dentro da janela (em segundos) for menor que o limite.
+
+    Robustez/limitações:
+    - Estado em memoria: nao e compartilhado entre multiplos workers/processos.
+      O deploy usa uvicorn single-process (Dockerfile/render.yaml), portanto e
+      suficiente. Para multi-worker seria necessario um store compartilhado
+      (Redis/Postgres); documentado aqui como decisao de arquitetura sem
+      adicionar dependencia externa.
+    - Thread-safe via lock (uvicorn pode atender request handlers em threads).
+    - Janela deslizante com precisao de monotonic clock (imune a ajustes de relogio).
+    """
+
+    def __init__(self, max_requisicoes: int, janela_seg: float):
+        self.max_requisicoes = max_requisicoes
+        self.janela_seg = janela_seg
+        self._acessos: dict[str, deque] = defaultdict(deque)
+        self._lock = threading.Lock()
+
+    def permitir(self, chave: str) -> bool:
+        agora = time.monotonic()
+        with self._lock:
+            fila = self._acessos[chave]
+            limite = agora - self.janela_seg
+            while fila and fila[0] < limite:
+                fila.popleft()
+            if len(fila) >= self.max_requisicoes:
+                return False
+            fila.append(agora)
+            return True
+
+
+# Rate limits: protegem senhas/cupons/metodos de auth contra brute force e abuso.
+# Janela deslizante em memoria por IP (e e-mail nos fluxos de senha).
+LIMITE_RECUPERAR_SENHA = RateLimiter(max_requisicoes=5, janela_seg=300)   # 5 por 5 min por IP/email
+LIMITE_REDEFINIR_SENHA = RateLimiter(max_requisicoes=8, janela_seg=300)   # 8 por 5 min por IP/email
+LIMITE_LOGIN = RateLimiter(max_requisicoes=10, janela_seg=300)            # 10 por 5 min por IP/email
+LIMITE_VALIDAR_CUPOM = RateLimiter(max_requisicoes=30, janela_seg=300)    # 30 por 5 min por usuario
+
+
+def _cliente_ip(request: Request) -> str:
+    return (request.client.host if request.client else "desconhecido") or "desconhecido"
 
 
 def _detectar_imagem(content_type: str, dados: bytes) -> str | None:
@@ -536,8 +587,14 @@ async def cadastro(req: CadastroRequest):
 
 
 @app.post("/api/auth/login")
-async def login(req: LoginRequest):
+async def login(req: LoginRequest, request: Request):
     email = (req.email or "").strip().lower()
+    chave = f"{_cliente_ip(request)}|{email}"
+    if not LIMITE_LOGIN.permitir(chave):
+        raise HTTPException(
+            status_code=429,
+            detail="Muitas tentativas de login. Aguarde alguns minutos antes de tentar novamente.",
+        )
     usuario = await database.obter_usuario_por_email(email)
     if not usuario or not _verificar_senha(req.senha or "", usuario["senha_hash"]):
         raise HTTPException(status_code=401, detail="Credenciais invalidas")
@@ -573,16 +630,26 @@ class RedefinirSenhaRequest(BaseModel):
 
 
 @app.post("/api/auth/recuperar-senha")
-async def recuperar_senha(req: RecuperarSenhaRequest):
+async def recuperar_senha(req: RecuperarSenhaRequest, request: Request):
     email = (req.email or "").strip().lower()
     if not EMAIL_REGEX.match(email):
         raise HTTPException(status_code=400, detail="Email invalido")
+
+    chave = f"{_cliente_ip(request)}|{email}"
+    if not LIMITE_RECUPERAR_SENHA.permitir(chave):
+        raise HTTPException(
+            status_code=429,
+            detail="Muitas solicitacoes. Aguarde alguns minutos antes de tentar novamente.",
+        )
 
     usuario = await database.obter_usuario_por_email(email)
     if not usuario:
         raise HTTPException(status_code=404, detail="Email nao cadastrado")
 
-    codigo = secrets.token_hex(4).upper()
+    # Token de reset com alta entropia (256 bits, ~43 chars url-safe) para
+    # impedir brute force. Codigo original era token_hex(4) = 32 bits (65536),
+    # trivialmente forcado. token_urlsafe(32) mantem a URL do email segura.
+    codigo = secrets.token_urlsafe(32)
     await database.criar_token_reset(email, codigo, _expira_em_minutos(15))
 
     enviado = await enviar_email_reset(email, codigo, usuario.get("nome", ""))
@@ -596,8 +663,14 @@ async def recuperar_senha(req: RecuperarSenhaRequest):
 
 
 @app.post("/api/auth/redefinir-senha")
-async def redefinir_senha(req: RedefinirSenhaRequest):
-    codigo = (req.codigo or "").strip().upper()
+async def redefinir_senha(req: RedefinirSenhaRequest, request: Request):
+    if not LIMITE_REDEFINIR_SENHA.permitir(_cliente_ip(request)):
+        raise HTTPException(
+            status_code=429,
+            detail="Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.",
+        )
+
+    codigo = (req.codigo or "").strip()
     nova_senha = req.nova_senha or ""
     token = await database.obter_token_reset(codigo)
     if not token:
@@ -1067,6 +1140,12 @@ async def cancelar_assinatura_endpoint(cliente_id: int, usuario: dict = Depends(
 
 @app.post("/api/cupom/validar")
 async def validar_cupom(req: CupomValidarRequest, usuario: dict = Depends(usuario_atual)):
+    chave = str(usuario["id"])
+    if not LIMITE_VALIDAR_CUPOM.permitir(chave):
+        raise HTTPException(
+            status_code=429,
+            detail="Muitas validacoes de cupom. Aguarde alguns minutos.",
+        )
     codigo = (req.codigo or "").strip().upper()
     if not codigo:
         return {"valido": False, "motivo": "invalido"}
