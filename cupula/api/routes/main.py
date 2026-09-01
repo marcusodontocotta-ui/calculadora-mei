@@ -14,10 +14,44 @@ from cupula.api.schemas import (
     WebhookRequestDTO,
 )
 from cupula.core.logger import get_logger
-from cupula.worker.main import get_worker
 
 logger = get_logger("api.routes")
 router = APIRouter()
+
+
+async def _process_webhook(cupula, trigger: str, payload: dict) -> dict:
+    """Processa um webhook direto na instância CupulaApp da API.
+
+    Com a remoção do worker embutido (P1c), os webhooks passam a ser
+    atendidos pela instância da própria API, e NÃO competem pelo consumo
+    dos Redis Streams (que fica a cargo exclusivo do serviço cupula-worker).
+    """
+    if trigger in ("decision", "n8n"):
+        action = payload.get("action")
+        if action == "run_meta":
+            return await cupula.run_meta_analysis()
+        if action == "get_report":
+            return await cupula.generate_report()
+        return await cupula.process_decision(
+            title=payload.get("title", "Decisão via webhook"),
+            description=payload.get("description", ""),
+            context=payload.get("context", {}),
+            constraints=payload.get("constraints", []),
+            priority=payload.get("priority", 5),
+            auto_legal=payload.get("auto_legal", True),
+        )
+    if trigger == "legal":
+        return await cupula.legal_analysis(
+            titulo=payload.get("titulo", "Análise via webhook"),
+            descricao=payload.get("descricao", ""),
+            dominios=payload.get("dominios", []),
+            acao_proposta=payload.get("acao_proposta", ""),
+        )
+    if trigger == "status":
+        stats = await cupula.legal_gateway.get_stats()
+        health = await cupula.get_health()
+        return {"worker": {"running": False, "note": "worker dedicado"}, "legal": stats, "health": health}
+    return {"status": "stored", "message": "Webhook genérico armazenado"}
 
 
 @router.post("/decide")
@@ -53,13 +87,6 @@ async def legal_analyze(request: LegalAnalysisRequestDTO, req: Request):
     except Exception as e:
         logger.error(f"Erro no /legal/analyze: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/health")
-async def health(req: Request):
-    cupula = req.app.state.cupula
-    status = await cupula.get_health()
-    return status
 
 
 @router.get("/status")
@@ -246,11 +273,9 @@ async def ai_vision_compare(request: VisionCompareDTO, req: Request):
 
 @router.post("/webhook")
 async def webhook_generic(request: WebhookRequestDTO, req: Request):
-    worker = get_worker()
-    if not worker:
-        raise HTTPException(status_code=503, detail="Worker não está rodando")
+    cupula = req.app.state.cupula
     try:
-        return await worker.process_webhook(request.__dict__)
+        return await _process_webhook(cupula, "generic", request.__dict__)
     except Exception as e:
         logger.error(f"Erro no /webhook: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -258,12 +283,9 @@ async def webhook_generic(request: WebhookRequestDTO, req: Request):
 
 @router.post("/webhook/decision")
 async def webhook_decision(request: WebhookRequestDTO, req: Request):
-    worker = get_worker()
-    if not worker:
-        raise HTTPException(status_code=503, detail="Worker não está rodando")
+    cupula = req.app.state.cupula
     try:
-        payload = {**request.__dict__, "trigger": "decision"}
-        return await worker.process_webhook(payload)
+        return await _process_webhook(cupula, "decision", {**request.__dict__})
     except Exception as e:
         logger.error(f"Erro no /webhook/decision: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -271,12 +293,9 @@ async def webhook_decision(request: WebhookRequestDTO, req: Request):
 
 @router.post("/webhook/legal")
 async def webhook_legal(request: WebhookRequestDTO, req: Request):
-    worker = get_worker()
-    if not worker:
-        raise HTTPException(status_code=503, detail="Worker não está rodando")
+    cupula = req.app.state.cupula
     try:
-        payload = {**request.__dict__, "trigger": "legal"}
-        return await worker.process_webhook(payload)
+        return await _process_webhook(cupula, "legal", {**request.__dict__})
     except Exception as e:
         logger.error(f"Erro no /webhook/legal: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -284,12 +303,9 @@ async def webhook_legal(request: WebhookRequestDTO, req: Request):
 
 @router.post("/webhook/n8n")
 async def webhook_n8n(request: WebhookRequestDTO, req: Request):
-    worker = get_worker()
-    if not worker:
-        raise HTTPException(status_code=503, detail="Worker não está rodando")
+    cupula = req.app.state.cupula
     try:
-        payload = {**request.__dict__, "trigger": "n8n"}
-        return await worker.process_webhook(payload)
+        return await _process_webhook(cupula, "n8n", {**request.__dict__})
     except Exception as e:
         logger.error(f"Erro no /webhook/n8n: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -297,21 +313,17 @@ async def webhook_n8n(request: WebhookRequestDTO, req: Request):
 
 @router.post("/webhook/status")
 async def webhook_status(request: WebhookRequestDTO, req: Request):
-    worker = get_worker()
-    if not worker:
-        raise HTTPException(status_code=503, detail="Worker não está rodando")
+    cupula = req.app.state.cupula
     try:
-        return await worker.process_webhook({"trigger": "status"})
+        return await _process_webhook(cupula, "status", request.__dict__)
     except Exception as e:
         logger.error(f"Erro no /webhook/status: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/worker/stats")
-async def worker_stats():
-    worker = get_worker()
-    if not worker:
-        return {"worker": "not_running"}
+async def worker_stats(req: Request):
+    cupula = req.app.state.cupula
     import json as _json
     import redis.asyncio as aioredis
     from cupula.config.settings import get_settings

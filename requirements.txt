@@ -1,0 +1,7 @@
+# Cúpula de Gestão Autônoma — dependências de runtime
+# Geradas a partir dos imports usados por cupula/api, cupula/worker,
+# cupula/ai_gateway, cupula/legal_gateway e cupula/core.
+fastapi>=0.111
+uvicorn[standard]>=0.30
+redis>=5.0
+httpx>=0.27

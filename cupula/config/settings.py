@@ -31,6 +31,15 @@ class Settings:
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8080
 
+    # API key de autenticação. OBRIGATÓRIA em produção. Se vazia, o servidor
+    # recusa iniciar (fail-closed) para nunca rodar sem autenticação.
+    CUPULA_API_KEY: str = ""
+
+    # Grupo/consumidor do Worker (Redis Streams). O consumidor deve ser único
+    # por instância para permitir múltiplas réplicas sem colisão.
+    REDIS_CONSUMER_GROUP: str = "cupula-worker-group"
+    REDIS_CONSUMER_NAME: str = "cupula-worker-1"
+
     REDIS_URL: str = "redis://localhost:6379"
     REDIS_STREAM_MAX_LEN: int = 10000
 
@@ -57,4 +66,7 @@ def get_settings() -> Settings:
         REDIS_STREAM_MAX_LEN=_env_int("REDIS_STREAM_MAX_LEN", 10000),
         MAX_AGENTS=_env_int("MAX_AGENTS", 10000),
         AGENT_TIMEOUT=_env_int("AGENT_TIMEOUT", 90),
+        CUPULA_API_KEY=_env("CUPULA_API_KEY", ""),
+        REDIS_CONSUMER_GROUP=_env("REDIS_CONSUMER_GROUP", "cupula-worker-group"),
+        REDIS_CONSUMER_NAME=_env("REDIS_CONSUMER_NAME", "cupula-worker-1"),
     )

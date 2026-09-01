@@ -1,14 +1,13 @@
 import time
-import asyncio
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, Request
 
 from cupula.config.settings import get_settings
 from cupula.core.logger import get_logger
 from cupula.app import CupulaApp
 from cupula.api.routes.main import router as api_router
-from cupula.worker.main import AutonomousWorker, set_worker
+from cupula.api.security import require_api_key
 
 logger = get_logger("api.main")
 
@@ -17,7 +16,6 @@ _startup_time = time.time()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    settings = get_settings()
     cupula = CupulaApp()
 
     from cupula.agents.builtin.sentinel.agent import SentinelAgent
@@ -34,56 +32,11 @@ async def lifespan(app: FastAPI):
     app.state.cupula = cupula
     app.state.start_time = time.time()
 
-    worker = AutonomousWorker()
-    set_worker(worker)
-    worker._cupula_app = cupula
-    worker._redis = cupula.orchestrator.bus._redis
-    worker._running = True
-
-    asyncio.create_task(_run_worker_background(worker))
-
-    logger.info(f"Cúpula API + Worker rodando em {settings.API_HOST}:{settings.API_PORT}")
+    logger.info("Cúpula API iniciada (worker dedicado roda como serviço separado)")
     yield
 
-    worker._running = False
     await cupula.stop()
     logger.info("Cúpula API encerrada")
-
-
-async def _run_worker_background(worker: AutonomousWorker):
-    try:
-        for key in worker.STREAM_KEYS:
-            try:
-                await worker._redis.xgroup_create(key, "worker-group", "0", mkstream=True)
-            except Exception:
-                pass
-
-        logger.info("Worker background: streams inicializados")
-
-        while worker._running:
-            try:
-                await asyncio.sleep(worker.CRON_INTERVAL)
-                if not worker._running:
-                    break
-                worker._cron_runs += 1
-                await worker._check_agent_health()
-                await worker._update_metrics()
-                await worker._update_worker_stats()
-
-                if worker._cron_runs % 2 == 0:
-                    try:
-                        await worker._periodic_meta_analysis()
-                    except Exception:
-                        pass
-
-                logger.debug(f"Worker cron cycle #{worker._cron_runs}")
-            except asyncio.CancelledError:
-                break
-            except Exception as e:
-                logger.error(f"Erro no worker cron: {e}")
-                await asyncio.sleep(5)
-    except Exception as e:
-        logger.error(f"Worker background falhou: {e}")
 
 
 def create_app() -> FastAPI:
@@ -96,7 +49,25 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    app.include_router(api_router, prefix="/api/v1")
+    settings_displayed = settings.CUPULA_API_KEY
+
+    @app.get("/api/v1/health")
+    async def public_health(req: Request):
+        """Health check público (isento de autenticação, sem dados sensíveis)."""
+        cupula = req.app.state.cupula
+        return await cupula.get_health()
+
+    # Todas as rotas /api/v1/* (exceto /health) exigem X-API-Key.
+    app.include_router(
+        api_router,
+        prefix="/api/v1",
+        dependencies=[Depends(require_api_key)],
+    )
+
+    if not settings_displayed:
+        logger.warning(
+            "CUPULA_API_KEY não configurada — rotas protegidas responderão 503 até a env var ser definida"
+        )
 
     return app
 

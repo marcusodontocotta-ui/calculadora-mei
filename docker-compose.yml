@@ -1,17 +1,32 @@
+# =============================================================================
+# Cúpula de Gestão Autônoma — Docker Compose
+#
+# NOTAS DE SEGURANÇA (hardening aplicado — P2):
+#   * Redis exige senha (requirepass) via ${REDIS_PASSWORD}. A porta do Redis
+#     só é publicada no host local (127.0.0.1:6379), não em 0.0.0.0, para não
+#     expor o Redis sem auth para a rede.
+#   * A API exige CUPULA_API_KEY (P1a). Defina um valor forte em .env. Sem ela,
+#     as rotas protegidas responderão 503 (fail-closed).
+#   * A API e o worker usam o mesmo serviço Redis autenticado via REDIS_URL.
+# =============================================================================
+
 services:
   redis:
     image: redis:7-alpine
     container_name: cupula-redis
-    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    command: ["sh", "-c", "exec redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --requirepass $$REDIS_PASSWORD"]
+    # Somente host local; não expõe o Redis (que agora exige senha) na rede.
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-cupula_change_me}
     volumes:
       - redis_data:/data
     networks:
       - cupula-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "$$REDIS_PASSWORD", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -48,10 +63,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-cupula_change_me}@redis:6379/0
       - API_HOST=0.0.0.0
       - API_PORT=8080
       - PYTHONUNBUFFERED=1
+      - CUPULA_API_KEY=${CUPULA_API_KEY:-}
     volumes:
       - ./logs:/app/logs
       - ./sandbox:/app/sandbox
@@ -66,10 +82,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.worker
-    container_name: cupula-worker
     environment:
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-cupula_change_me}@redis:6379/0
       - PYTHONUNBUFFERED=1
+      # Consumidor único por réplica para evitar colisão no Redis Streams (P1c).
+      - REDIS_CONSUMER_GROUP=${REDIS_CONSUMER_GROUP:-cupula-worker-group}
+      - REDIS_CONSUMER_NAME=${REDIS_CONSUMER_NAME:-cupula-worker-1}
     volumes:
       - ./logs:/app/logs
     networks:

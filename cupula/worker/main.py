@@ -47,6 +47,8 @@ class AutonomousWorker:
         self._cron_runs = 0
         self._webhooks_received = 0
         self._cupula_app = None
+        self.consumer_group = self.settings.REDIS_CONSUMER_GROUP
+        self.consumer_name = self.settings.REDIS_CONSUMER_NAME
 
     async def start(self):
         self._redis = aioredis.from_url(
@@ -99,23 +101,26 @@ class AutonomousWorker:
     async def _event_driven_loop(self):
         for key in self.STREAM_KEYS:
             try:
-                await self._redis.xgroup_create(key, "worker-group", "0", mkstream=True)
+                await self._redis.xgroup_create(key, self.consumer_group, "0", mkstream=True)
             except aioredis.ResponseError:
                 pass
 
-        logger.info(f"Event Driven: monitorando {len(self.STREAM_KEYS)} streams")
+        logger.info(
+            f"Event Driven: monitorando {len(self.STREAM_KEYS)} streams "
+            f"(grupo={self.consumer_group}, consumidor={self.consumer_name})"
+        )
 
         while self._running:
             try:
                 results = await self._redis.xreadgroup(
-                    "worker-group", "worker-1",
+                    self.consumer_group, self.consumer_name,
                     {k: ">" for k in self.STREAM_KEYS},
                     count=10, block=1000,
                 )
                 for stream_name, messages in results:
                     for msg_id, fields in messages:
                         await self._handle_event(stream_name, msg_id, fields)
-                        await self._redis.xack(stream_name, "worker-group", msg_id)
+                        await self._redis.xack(stream_name, self.consumer_group, msg_id)
                         self._events_processed += 1
             except asyncio.CancelledError:
                 break
