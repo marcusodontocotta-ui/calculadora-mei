@@ -307,6 +307,51 @@ async def enviar_email_reset(email: str, codigo: str, nome: str) -> bool:
         return False
 
 
+async def enviar_email_confirmacao(email: str, token: str, nome: str) -> bool:
+    """(B2) Envia link de confirmacao de posse de email via Resend.
+
+    Retorna False se nao configurado/falhou (fluxo degrada: cadastro nao trava).
+    """
+    if not RESEND_API_KEY:
+        return False
+    url = email.strip().lower()
+    link = f"https://calculadora-mei.onrender.com/api/auth/confirmar-email?token={token}"
+    html = (
+        "<div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto'>"
+        "<h2 style='color:#2563eb'>Calculadora MEI</h2>"
+        f"<p>Ola, <strong>{nome or 'usuario'}</strong>!</p>"
+        "<p>Confirme que este e-mail e seu clicando no botao abaixo. "
+        "Isso ajuda a proteger sua conta e receber avisos importantes:</p>"
+        "<p style='text-align:center;margin:24px 0'>"
+        f"<a href='{link}' "
+        "style='background:#2563eb;color:#fff;padding:12px 28px;border-radius:8px;"
+        "text-decoration:none;font-weight:700;display:inline-block'>Confirmar e-mail</a></p>"
+        "<p>Se voce nao criou uma conta, pode ignorar este e-mail.</p>"
+        "<p style='color:#6b7280;font-size:12px'>Calculadora MEI - "
+        "https://calculadora-mei.onrender.com</p>"
+        "</div>"
+    )
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": RESEND_FROM,
+                    "to": [url],
+                    "subject": "Confirme seu e-mail - Calculadora MEI",
+                    "html": html,
+                },
+            )
+            return resp.status_code in (200, 201)
+    except Exception as e:
+        print(f"[Email] Erro ao enviar confirmacao via Resend: {e}")
+        return False
+
+
 async def usuario_atual(authorization: str = Header(None)) -> dict:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Token nao fornecido")
@@ -382,11 +427,50 @@ async def reconciliar_pagamentos():
         print(f"[RECON] Erro na varredura de pendentes: {e}")
 
 
+def _valor_efetivo_pagamento(pagamento: dict) -> float:
+    """Valor efetivamente pago: transaction_amount menos o que foi estornado.
+
+    (B1) Base para conferir contra o valor esperado da assinatura/cupom.
+    """
+    bruto = pagamento.get("transaction_amount") or 0.0
+    estornado = pagamento.get("transaction_amount_refunded") or 0.0
+    return round(float(bruto) - float(estornado), 2)
+
+
+def _valor_confere(esperado: float, pago: float) -> bool:
+    """Compara valores com tolerancia de 1 centavo (evita falsos-negativos)."""
+    return abs(round(float(esperado), 2) - round(float(pago), 2)) <= 0.01
+
+
+async def _validar_valor_pagamento(assinatura: dict, pagamento: dict, pago_id) -> bool:
+    """(B1) Confere o valor pago contra o valor_esperado da assinatura/cupom.
+
+    Retorna True se o valor conferir (com tolerancia de centavos). Se divergir,
+    registra inconsistencia no log e retorna False para que a ativacao NAO ocorra.
+    Assinaturas legadas sem valor_esperado gravado sao aceitas (sem falsos-negativos).
+    """
+    esperado = assinatura.get("valor_esperado")
+    if esperado is None:
+        print(f"[VALOR] Assinatura {assinatura.get('id')} sem valor_esperado; aceita sem checagem (legado)")
+        return True
+    pago = _valor_efetivo_pagamento(pagamento)
+    if _valor_confere(float(esperado), pago):
+        return True
+    estornado = pagamento.get("transaction_amount_refunded") or 0.0
+    print(
+        f"[VALOR][INCONSISTENCIA] Pagamento {pago_id} valor divergente: pagou R$ {pago:.2f} "
+        f"(bruto R$ {pagamento.get('transaction_amount') or 0:.2f}, estornado R$ {estornado:.2f}) "
+        f"vs esperado R$ {esperado:.2f} p/ assinatura {assinatura.get('id')}. PRO NAO ativado."
+    )
+    return False
+
+
 async def _ativar_por_pagamento_aprovado(client, assinatura):
     """Consulta a MP por pagamentos aprovados dessa assinatura (recorrente ou unica) e ativa.
 
     Busca por external_reference 'meiuser_' (novo, recorrente) e 'usuario_' (legado, pagamento unico).
     Se o pagamento carrega preapproval_id, resolve a assinatura pelo preapproval e ativa via preapproval.
+    (B1) So ativa se o valor pago conferir com o valor_esperado da assinatura/cupom.
     """
     usuario_id = assinatura["usuario_id"]
     resultados = []
@@ -415,7 +499,7 @@ async def _ativar_por_pagamento_aprovado(client, assinatura):
             continue
         if pagamento.get("status") != "approved":
             continue
-        valor = (pagamento.get("transaction_amount") or 0.0)
+        valor = _valor_efetivo_pagamento(pagamento)
         preapproval_id = pagamento.get("preapproval_id")
 
         assinatura_alvo = assinatura
@@ -423,6 +507,8 @@ async def _ativar_por_pagamento_aprovado(client, assinatura):
             por_pre = await database.obter_assinatura_por_preapproval(str(preapproval_id))
             if por_pre:
                 assinatura_alvo = por_pre
+
+        valor_ok = await _validar_valor_pagamento(assinatura_alvo, pagamento, pago_id)
 
         registrado = await database.registrar_pagamento(
             str(pago_id),
@@ -434,7 +520,7 @@ async def _ativar_por_pagamento_aprovado(client, assinatura):
             "reconciliacao",
             str(pagamento)[:1000],
         )
-        if registrado:
+        if registrado and valor_ok:
             if preapproval_id:
                 renovou = await database.ativar_assinatura_preapproval(assinatura_alvo["id"], str(preapproval_id))
             else:
@@ -568,9 +654,22 @@ async def cadastro(req: CadastroRequest):
         raise HTTPException(status_code=409, detail="Email ja cadastrado")
 
     salt = _gerar_salt()
-    usuario = await database.criar_usuario(nome, email, f"{salt}${_hash_senha(senha, salt)}")
+    # (B2) Verificacao de posse de email (best-effort): gera token de confirmacao,
+    # grava apenas o HASH no banco e envia o link SE o Resend estiver configurado.
+    # O cadastro nao e bloqueado quando o envio nao esta disponivel (degradavel).
+    token_confirm = _novo_token()
+    usuario = await database.criar_usuario(
+        nome, email, f"{salt}${_hash_senha(senha, salt)}",
+        email_verificado=False,
+        email_confirm_token=database.hash_token(token_confirm),
+    )
     if not usuario:
         raise HTTPException(status_code=409, detail="Email ja cadastrado")
+
+    enviado = await enviar_email_confirmacao(email, token_confirm, nome)
+    if not enviado:
+        print(f"[EMAIL_CONFIRM] Envio nao disponivel p/ {email}; cadastro prossegue "
+              f"sem confirmacao (email_verificado=False, token gravado com hash)")
 
     token = _novo_token()
     await database.criar_sessao(usuario["id"], token, _expira_em())
@@ -582,6 +681,7 @@ async def cadastro(req: CadastroRequest):
             "nome": usuario["nome"],
             "email": usuario["email"],
             "plano": await _plano_usuario(usuario["id"]),
+            "email_verificado": False,
         }
     }
 
@@ -609,8 +709,26 @@ async def login(req: LoginRequest, request: Request):
             "nome": usuario["nome"],
             "email": usuario["email"],
             "plano": await _plano_usuario(usuario["id"]),
+            "email_verificado": bool(usuario.get("email_verificado")),
         }
     }
+
+
+@app.get("/api/auth/confirmar-email")
+async def confirmar_email(token: str):
+    """(B2) Confirma a posse do email a partir do token enviado por e-mail."""
+    token = (token or "").strip()
+    if not token:
+        raise HTTPException(status_code=400, detail="Token ausente")
+    usuario = await database.obter_usuario_por_confirm_token(database.hash_token(token))
+    if not usuario:
+        raise HTTPException(
+            status_code=400,
+            detail="Token de confirmacao invalido ou email ja confirmado",
+        )
+    await database.marcar_email_verificado(usuario["id"])
+    return {"sucesso": True, "mensagem": "Email confirmado com sucesso.",
+            "email": usuario["email"]}
 
 
 @app.post("/api/auth/logout")
@@ -710,6 +828,7 @@ async def me(usuario: dict = Depends(usuario_atual)):
             "nome": usuario["nome"],
             "email": usuario["email"],
             "plano": plano,
+            "email_verificado": bool(usuario.get("email_verificado")),
         },
         "autenticado": True,
         "limites": PLANO_LIMITES[plano],
@@ -838,6 +957,9 @@ async def criar_checkout(req: AssinaturaRequest, usuario: dict = Depends(usuario
             "status": "pendente",
             "mp_subscription_id": dados.get("id"),
             "external_reference": external_reference,
+            # (B1) valor esperado (com desconto de cupom, se houver) usado depois
+            # para conferir o pagamento aprovado antes de ativar/renovar o PRO.
+            "valor_esperado": round(valor_unitario, 2),
         })
 
         resposta = {
@@ -1011,7 +1133,7 @@ async def webhook_mercadopago(request: Request):
 
     metadata = pagamento.get("metadata", {}) or {}
     usuario_id = metadata.get("usuario_id")
-    valor = pagamento.get("transaction_amount") or 0.0
+    valor = _valor_efetivo_pagamento(pagamento)
     external_ref = pagamento.get("external_reference") or ""
     preapproval_id = pagamento.get("preapproval_id")
 
@@ -1034,12 +1156,16 @@ async def webhook_mercadopago(request: Request):
         )
         return {"sucesso": True, "processado": False, "motivo": "sem_assinatura"}
 
+    # (B1) confere o valor antes de ativar/renovar; registra o pagamento p/
+    # idempotencia mesmo quando o valor divergir, mas NAO ativa.
+    valor_ok = await _validar_valor_pagamento(assinatura, pagamento, payment_id)
+
     registrado = await database.registrar_pagamento(
         str(payment_id), pagamento.get("preference_id"), usuario_id,
         assinatura["id"], "approved", valor, "inicial", str(pagamento)[:1000],
     )
     renovou = False
-    if registrado:
+    if registrado and valor_ok:
         if preapproval_id:
             renovou = await database.ativar_assinatura_preapproval(assinatura["id"], str(preapproval_id))
         else:

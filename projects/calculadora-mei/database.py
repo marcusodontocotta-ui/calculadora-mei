@@ -144,6 +144,8 @@ async def init_db():
                 nome TEXT,
                 email TEXT UNIQUE NOT NULL,
                 senha_hash TEXT NOT NULL,
+                email_verificado BOOLEAN DEFAULT FALSE,
+                email_confirm_token TEXT,
                 criado_em TEXT DEFAULT (NOW()::TEXT)
             );
 
@@ -184,11 +186,23 @@ async def init_db():
             ("renovacoes", "INTEGER DEFAULT 0"),
             ("preapproval_id", "TEXT"),
             ("external_reference", "TEXT"),
+            ("valor_esperado", "REAL"),
         ):
             try:
                 await conn.execute(f"ALTER TABLE mei_assinaturas ADD COLUMN IF NOT EXISTS {coluna} {tipo}")
             except Exception as e:
                 print(f"[DB] Aviso: coluna {coluna} em mei_assinaturas: {e}")
+
+        # B2: verificacao de posse de email (best-effort). Colunas adicionadas em
+        # tabelas existentes sem quebrar cadastro imediato.
+        for coluna, tipo in (
+            ("email_verificado", "BOOLEAN DEFAULT FALSE"),
+            ("email_confirm_token", "TEXT"),
+        ):
+            try:
+                await conn.execute(f"ALTER TABLE mei_usuarios ADD COLUMN IF NOT EXISTS {coluna} {tipo}")
+            except Exception as e:
+                print(f"[DB] Aviso: coluna {coluna} em mei_usuarios: {e}")
 
         # NOTA (M3): removido o seed do cupom TESTE100 (100%) para que uma nova
         # provisao NAO recrie um cupom de desconto integral. MEI50/MEI80, quando
@@ -225,14 +239,18 @@ async def init_db():
 
 # ── Autenticacao ──────────────────────────────────────────────────────────────
 
-async def criar_usuario(nome: str, email: str, senha_hash: str) -> dict | None:
+async def criar_usuario(nome: str, email: str, senha_hash: str,
+                        email_verificado: bool = False,
+                        email_confirm_token: str | None = None) -> dict | None:
     """Cria usuario. Retorna dict, ou None se o email ja existir."""
     p = await get_pool()
     async with p.acquire() as conn:
         try:
             row = await conn.fetchrow(
-                "INSERT INTO mei_usuarios (nome, email, senha_hash) VALUES ($1,$2,$3) RETURNING id, nome, email",
-                nome, email, senha_hash
+                """INSERT INTO mei_usuarios (nome, email, senha_hash, email_verificado, email_confirm_token)
+                   VALUES ($1,$2,$3,$4,$5)
+                   RETURNING id, nome, email, email_verificado""",
+                nome, email, senha_hash, email_verificado, email_confirm_token
             )
             return dict(row)
         except asyncpg.UniqueViolationError:
@@ -243,10 +261,34 @@ async def obter_usuario_por_email(email: str) -> dict | None:
     p = await get_pool()
     async with p.acquire() as conn:
         row = await conn.fetchrow(
-            "SELECT id, nome, email, senha_hash FROM mei_usuarios WHERE email=$1",
+            "SELECT id, nome, email, senha_hash, email_verificado, email_confirm_token "
+            "FROM mei_usuarios WHERE email=$1",
             email
         )
         return dict(row) if row else None
+
+
+async def obter_usuario_por_confirm_token(token_hash: str) -> dict | None:
+    """Retorna usuario pelo hash do token de confirmacao de email."""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT id, nome, email, email_verificado FROM mei_usuarios "
+            "WHERE email_confirm_token=$1 AND email_verificado=FALSE",
+            token_hash
+        )
+        return dict(row) if row else None
+
+
+async def marcar_email_verificado(usuario_id: int) -> bool:
+    """Confirma a posse do email e limpa o token de confirmacao."""
+    p = await get_pool()
+    async with p.acquire() as conn:
+        result = await conn.execute(
+            "UPDATE mei_usuarios SET email_verificado=TRUE, email_confirm_token=NULL WHERE id=$1",
+            usuario_id
+        )
+        return result.endswith(" 1")
 
 
 async def criar_sessao(usuario_id: int, token: str, expira_em: str):
@@ -358,7 +400,7 @@ async def usuario_por_token(token: str) -> dict | None:
     async with p.acquire() as conn:
         row = await conn.fetchrow(
             """
-            SELECT u.id, u.nome, u.email, s.expira_em
+            SELECT u.id, u.nome, u.email, u.email_verificado, s.expira_em
             FROM mei_sessoes s
             JOIN mei_usuarios u ON u.id = s.usuario_id
             WHERE s.token=$1
@@ -375,7 +417,8 @@ async def usuario_por_token(token: str) -> dict | None:
                 return None
             if datetime.now() > exp_dt:
                 return None
-        return {"id": row["id"], "nome": row["nome"], "email": row["email"]}
+        return {"id": row["id"], "nome": row["nome"], "email": row["email"],
+                "email_verificado": bool(row["email_verificado"])}
 
 
 # ── CRUD Produtos ────────────────────────────────────────────────────────────
@@ -602,11 +645,11 @@ async def criar_assinatura(dados: dict) -> dict:
     p = await get_pool()
     async with p.acquire() as conn:
         row = await conn.fetchrow("""
-            INSERT INTO mei_assinaturas (cliente_id, usuario_id, email, nome, status, mp_subscription_id)
-            VALUES ($1,$2,$3,$4,$5,$6)
+            INSERT INTO mei_assinaturas (cliente_id, usuario_id, email, nome, status, mp_subscription_id, valor_esperado)
+            VALUES ($1,$2,$3,$4,$5,$6,$7)
             RETURNING id
         """, dados.get('cliente_id'), dados.get('usuario_id'), dados.get('email'), dados.get('nome'),
-             dados.get('status','pendente'), dados.get('mp_subscription_id'))
+             dados.get('status','pendente'), dados.get('mp_subscription_id'), dados.get('valor_esperado'))
         dados['id'] = row['id']
         return dados
 
