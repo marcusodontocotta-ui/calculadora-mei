@@ -22,7 +22,7 @@ from typing import Optional
 import httpx
 from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -920,6 +920,15 @@ async def _desativar_por_preapproval(preapproval_id) -> bool:
 
 @app.post("/api/webhook/mercadopago")
 async def webhook_mercadopago(request: Request):
+    # Fail-closed: sem MP_WEBHOOK_SECRET configurado, o webhook nao e processado.
+    secret = os.environ.get("MP_WEBHOOK_SECRET", "")
+    if not secret:
+        print("[WEBHOOK] MP_WEBHOOK_SECRET nao configurado -> 503 fail-closed")
+        return JSONResponse(
+            status_code=503,
+            content={"sucesso": False, "processado": False, "motivo": "servico_nao_configurado"},
+        )
+
     try:
         body = await request.json()
     except Exception:
@@ -927,20 +936,21 @@ async def webhook_mercadopago(request: Request):
     tipo = body.get("type", "")
     dados = body.get("data", {})
 
+    # Exige x-signature e x-request-id validos (HMAC-SHA256) antes de processar.
     header_sig = request.headers.get("x-signature", "")
     request_id = request.headers.get("x-request-id", "")
-    if header_sig:
-        secret = os.environ.get("MP_WEBHOOK_SECRET", "")
-        if secret:
-            par = dict(p.split("=") for p in header_sig.split(",") if "=" in p)
-            ts = par.get("ts", "")
-            v1 = par.get("v1", "")
-            payload_id = dados.get("id", "")
-            if ts and v1:
-                manifest = f"id:{payload_id}\nrequest-id:{request_id}\nts:{ts}"
-                if not _hmac_valid(secret, manifest, v1):
-                    print("[WEBHOOK] X-Signature invalida")
-                    return {"sucesso": False, "processado": False, "motivo": "assinatura_invalida"}
+    if not header_sig or not request_id:
+        raise HTTPException(status_code=401, detail="Assinatura ausente")
+    par = dict(p.split("=") for p in header_sig.split(",") if "=" in p)
+    ts = par.get("ts", "")
+    v1 = par.get("v1", "")
+    payload_id = dados.get("id", "")
+    if not (ts and v1):
+        raise HTTPException(status_code=401, detail="Assinatura invalida")
+    manifest = f"id:{payload_id}\nrequest-id:{request_id}\nts:{ts}"
+    if not _hmac_valid(secret, manifest, v1):
+        print("[WEBHOOK] X-Signature invalida")
+        raise HTTPException(status_code=401, detail="Assinatura invalida")
 
     tipo_id = dados.get("id")
 

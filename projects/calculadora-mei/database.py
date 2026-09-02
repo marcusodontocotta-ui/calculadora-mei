@@ -2,6 +2,7 @@
 Calculadora MEI - Database PostgreSQL
 Conexao com o mesmo banco do SISGERSA (tabelas separadas com prefixo 'mei_')
 """
+import hashlib
 import os
 import re
 import ssl
@@ -13,6 +14,16 @@ if not RAW_DATABASE_URL:
     raise RuntimeError(
         "Variável de ambiente DATABASE_URL é obrigatória (ex.: definida no Render)."
     )
+
+
+def hash_token(token: str) -> str:
+    """Converte um token de sessao para seu hash SHA-256 (hex), nunca gravando o valor bruto."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def _token_ja_hashado(token: str) -> bool:
+    """Heuristica: token ja armazenado como hash SHA-256 (64 chars hex)."""
+    return isinstance(token, str) and len(token) == 64
 
 
 def _parse_database_url(url: str) -> dict:
@@ -179,11 +190,35 @@ async def init_db():
             except Exception as e:
                 print(f"[DB] Aviso: coluna {coluna} em mei_assinaturas: {e}")
 
-        await conn.execute("""
-            INSERT INTO mei_cupons (codigo, percentual, ativo)
-            VALUES ('TESTE100', 100, TRUE)
-            ON CONFLICT (codigo) DO NOTHING
-        """)
+        # NOTA (M3): removido o seed do cupom TESTE100 (100%) para que uma nova
+        # provisao NAO recrie um cupom de desconto integral. MEI50/MEI80, quando
+        # necessarios, sao criados manualmente/administrativamente.
+
+        # ── M4: migrar sessoes legadas para hash SHA-256 + poda ────────────────
+        # Sessoes antigas gravavam o token em texto puro. Aqui, no boot, as linhas
+        # em texto puro sao convertidas in-place para o hash (mantendo os usuarios
+        # logados), e linhas ja em hash (64-hex) ficam intactas. Tambem poda
+        # sessoes expiradas/abandonadas para evitar acumulo no banco.
+        linhas_legadas = await conn.fetchval(
+            "SELECT COUNT(*) FROM mei_sessoes WHERE LENGTH(token) <> 64"
+        )
+        if linhas_legadas:
+            legadas = await conn.fetch(
+                "SELECT id, token FROM mei_sessoes WHERE LENGTH(token) <> 64"
+            )
+            for r in legadas:
+                bruto = r["token"]
+                if _token_ja_hashado(bruto):
+                    continue
+                await conn.execute(
+                    "UPDATE mei_sessoes SET token=$1 WHERE id=$2",
+                    hash_token(bruto), r["id"]
+                )
+            print(f"[DB] Migradas {linhas_legadas} sessao(ões) para token com hash SHA-256")
+        await conn.execute(
+            "DELETE FROM mei_sessoes WHERE expira_em IS NOT NULL "
+            "AND (expira_em::timestamptz) < NOW()"
+        )
 
     print("[DB] Tabelas mei_* criadas/verificadas com sucesso!")
 
@@ -219,14 +254,14 @@ async def criar_sessao(usuario_id: int, token: str, expira_em: str):
     async with p.acquire() as conn:
         await conn.execute(
             "INSERT INTO mei_sessoes (usuario_id, token, expira_em) VALUES ($1,$2,$3)",
-            usuario_id, token, expira_em
+            usuario_id, hash_token(token), expira_em
         )
 
 
 async def revogar_sessao(token: str):
     p = await get_pool()
     async with p.acquire() as conn:
-        await conn.execute("DELETE FROM mei_sessoes WHERE token=$1", token)
+        await conn.execute("DELETE FROM mei_sessoes WHERE token=$1", hash_token(token))
 
 
 async def criar_token_reset(email: str, token: str, expira_em: str):
@@ -315,7 +350,10 @@ async def exportar_dados_usuario(usuario_id: int) -> dict:
 
 
 async def usuario_por_token(token: str) -> dict | None:
-    """Busca sessao valida (nao expirada) e retorna o usuario."""
+    """Busca sessao valida (nao expirada) e retorna o usuario.
+
+    O token bruto nunca e gravado: compara-se pelo hash SHA-256 armazenado.
+    """
     p = await get_pool()
     async with p.acquire() as conn:
         row = await conn.fetchrow(
@@ -325,7 +363,7 @@ async def usuario_por_token(token: str) -> dict | None:
             JOIN mei_usuarios u ON u.id = s.usuario_id
             WHERE s.token=$1
             """,
-            token
+            hash_token(token)
         )
         if not row:
             return None
