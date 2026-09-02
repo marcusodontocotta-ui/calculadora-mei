@@ -1,0 +1,85 @@
+{
+  "name": "Cúpula — Análise Legal Automática",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cupula-legal",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-legal",
+      "name": "Webhook Legal",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://cupula-api:8080/api/v1/webhook/legal",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"titulo\": \"{{ $json.body.titulo }}\",\n  \"descricao\": \"{{ $json.body.descricao }}\",\n  \"dominios\": {{ JSON.stringify($json.body.dominios || []) }},\n  \"acao_proposta\": \"{{ $json.body.acao_proposta || '' }}\"\n}",
+        "options": { "timeout": 60000 }
+      },
+      "id": "call-legal",
+      "name": "Chamar Setor Jurídico",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.opinion.veredito }}",
+              "operation": "equal",
+              "value2": "NAO_CONFORME"
+            }
+          ]
+        }
+      },
+      "id": "check-verdict",
+      "name": "É Não Conforme?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "channel": "#cupula-legal",
+        "text": "🚨 *Alerta Legal*\nVeredito: {{ $json.opinion.veredito }}\nRisco: {{ $json.opinion.risco }}\n\n{{ $json.opinion.parecer }}",
+        "otherOptions": {}
+      },
+      "id": "slack-legal-alert",
+      "name": "Alerta Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1000, 200],
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Webhook Legal": {
+      "main": [
+        [{ "node": "Chamar Setor Jurídico", "type": "main", "index": 0 }]
+      ]
+    },
+    "Chamar Setor Jurídico": {
+      "main": [
+        [{ "node": "É Não Conforme?", "type": "main", "index": 0 }]
+      ]
+    },
+    "É Não Conforme?": {
+      "main": [
+        [{ "node": "Alerta Slack", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": [{ "name": "cupula" }]
+}

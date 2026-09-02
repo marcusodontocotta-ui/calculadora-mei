@@ -2,10 +2,15 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .env
+
+# ── Artefatos de execução (não versionar) ────────────────────────────────────
+# logs/ e sandbox/ contêm artefatos efêmeros de execução (log files, containers
+# temporários, caches de sandbox). Versionar esses diretórios causaria ruído no
+# histórico Git e potenciais conflitos entre devs. decisions/ já é versionável
+# por decisão de design (M4) e NÃO está ignorado.
 logs/
 sandbox/
-decisions/
-workflows/
+
 .vscode/
 .idea/
 *.egg-info/

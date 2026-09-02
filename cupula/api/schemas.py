@@ -2,6 +2,8 @@ import time
 from typing import Any
 from dataclasses import dataclass, field
 
+from cupula.api.validation import validate_dto
+
 
 @dataclass
 class DecisionRequestDTO:
@@ -12,6 +14,9 @@ class DecisionRequestDTO:
     priority: int = 5
     auto_legal: bool = True
 
+    def __post_init__(self):
+        validate_dto(self)
+
 
 @dataclass
 class LegalAnalysisRequestDTO:
@@ -20,6 +25,9 @@ class LegalAnalysisRequestDTO:
     dominios: list[str] = field(default_factory=list)
     acao_proposta: str = ""
     dados_envolvidos: list[str] = field(default_factory=list)
+
+    def __post_init__(self):
+        validate_dto(self)
 
 
 @dataclass
@@ -59,11 +67,17 @@ class CodeGenerateDTO:
     style: str = ""
     constraints: list[str] = field(default_factory=list)
 
+    def __post_init__(self):
+        validate_dto(self)
+
 
 @dataclass
 class CodeReviewDTO:
     code: str
     language: str = "python"
+
+    def __post_init__(self):
+        validate_dto(self)
 
 
 @dataclass
@@ -71,6 +85,9 @@ class CodeDebugDTO:
     code: str
     error: str
     language: str = "python"
+
+    def __post_init__(self):
+        validate_dto(self)
 
 
 @dataclass
@@ -81,12 +98,18 @@ class ImageGenerateDTO:
     quality: str = "hd"
     variations: int = 1
 
+    def __post_init__(self):
+        validate_dto(self)
+
 
 @dataclass
 class CopyDTO:
     brief: str
     product: str
     audience: str
+
+    def __post_init__(self):
+        validate_dto(self)
 
 
 @dataclass
@@ -95,22 +118,34 @@ class BrainstormDTO:
     context: str = ""
     count: int = 5
 
+    def __post_init__(self):
+        validate_dto(self)
+
 
 @dataclass
 class VisionScreenshotDTO:
     image_url: str
     context: str = ""
 
+    def __post_init__(self):
+        validate_dto(self)
+
 
 @dataclass
 class VisionOCRequestDTO:
     image_url: str
+
+    def __post_init__(self):
+        validate_dto(self)
 
 
 @dataclass
 class VisionCompareDTO:
     image_url_a: str
     image_url_b: str
+
+    def __post_init__(self):
+        validate_dto(self)
 
 
 # ── Webhook DTOs ──────────────────────────────────────────────────────────────
@@ -129,3 +164,6 @@ class WebhookRequestDTO:
     dominios: list[str] = field(default_factory=list)
     acao_proposta: str = ""
     action: str = ""
+
+    def __post_init__(self):
+        validate_dto(self)

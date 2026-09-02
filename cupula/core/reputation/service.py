@@ -213,6 +213,24 @@ class ReputationService:
         score = await self.get_score(agent_id)
         return 0.3 + (score.overall_score * 0.7)
 
+    def get_weight_sync(self, agent_id: str) -> float:
+        """Leitura síncrona rápida do peso de reputação para ordenação.
+
+        Não conecta ao Redis (não bloqueia o event loop); se o serviço ainda
+        não estiver conectado ou o agente não tiver score armazenado, retorna o
+        peso neutro (0.3) para agentes desconhecidos.
+        """
+        if self._redis is None:
+            return 0.3
+        try:
+            raw = self._redis.get(f"{self.SCORES_PREFIX}{agent_id}")
+            if raw is None:
+                return 0.3
+            score = json.loads(raw)
+        except Exception:
+            return 0.3
+        return 0.3 + (float(score.get("overall_score", 0.5)) * 0.7)
+
     async def get_all_scores(self) -> list[dict]:
         keys = []
         async for key in self._redis.scan_iter(f"{self.SCORES_PREFIX}*"):

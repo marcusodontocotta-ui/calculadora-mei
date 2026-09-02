@@ -1,0 +1,93 @@
+{
+  "name": "Cúpula — Monitor de Saúde (cron 30s)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "seconds", "secondsInterval": 30 }]
+        }
+      },
+      "id": "cron",
+      "name": "A cada 30s",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://cupula-api:8080/api/v1/health",
+        "options": { "timeout": 10000 }
+      },
+      "id": "health-check",
+      "name": "Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "operation": "notEqual",
+              "value2": "healthy"
+            }
+          ]
+        }
+      },
+      "id": "check-status",
+      "name": "Status OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "channel": "#cupula-alerts",
+        "text": "⚠️ *Cúpula Alert*\nStatus: {{ $json.status }}\nRedis: {{ $json.redis }}\nAgents: {{ $json.agents_registered }}",
+        "otherOptions": {}
+      },
+      "id": "slack-alert",
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1000, 200],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://cupula-api:8080/api/v1/meta/analyze",
+        "options": { "timeout": 30000 }
+      },
+      "id": "meta-analysis",
+      "name": "Meta Análise",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 400]
+    }
+  ],
+  "connections": {
+    "A cada 30s": {
+      "main": [
+        [{ "node": "Health Check", "type": "main", "index": 0 }]
+      ]
+    },
+    "Health Check": {
+      "main": [
+        [{ "node": "Status OK?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Status OK?": {
+      "main": [
+        [{ "node": "Slack Alert", "type": "main", "index": 0 }],
+        [{ "node": "Meta Análise", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": [{ "name": "cupula" }]
+}

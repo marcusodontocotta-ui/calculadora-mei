@@ -160,16 +160,61 @@ class Orchestrator:
         return result
 
     def _select_agents(self, request: DecisionRequest) -> list[str]:
+        """Seleciona os agentes que participarão da decisão.
+
+        Heurística (documentada — L3):
+        - Se o request pedir roles explícitas (`required_roles`), usa somente
+          aquelas (prioridade máxima, sem limite de 10).
+        - Caso contrário, parte de todos os agentes `idle` e aplica uma
+          ORDENAÇÃO explícita para priorizar:
+            1. roles críticas (definidas em `self._critical_roles`,
+               configurável via `CUPULA_CRITICAL_ROLES`); e
+            2. maior reputação (peso) — agentes com melhor histórico.
+        - Retorna os primeiros `self._max_agents_per_decision` (padrão 10).
+
+        Comportamento preservado: continua limitando a 10 agentes idle por
+        decisão quando não há `required_roles`. A novidade é a priorização
+        determinística das roles críticas e da reputação, tornando a seleção
+        menos aleatória/dependente da ordem de registro.
+        """
+        settings = get_settings()
+
         if request.required_roles:
             return [
                 aid for aid, agent in self._agents.items()
                 if agent.get("role") in request.required_roles
             ]
 
-        return [
+        idle_agents = [
             aid for aid, agent in self._agents.items()
             if agent.get("status") == "idle"
-        ][:10]
+        ]
+
+        critical_roles = {
+            r.strip().lower()
+            for r in settings.CUPULA_CRITICAL_ROLES.split(",")
+            if r.strip()
+        }
+
+        def _sort_key(aid: str):
+            role = str(self._agents[aid].get("role", "")).lower()
+            is_critical = 0 if role in critical_roles else 1
+            return (is_critical, -self._reputation_score_sync(aid))
+
+        idle_agents.sort(key=_sort_key)
+        return idle_agents[: settings.CUPULA_MAX_AGENTS_PER_DECISION]
+
+    def _reputation_score_sync(self, agent_id: str) -> float:
+        """Peso de reputação usado na ordenação da seleção de agentes.
+
+        É uma leitura síncrona leve (não bloqueante) do score do agente. Se o
+        serviço de reputação ainda não estiver conectado ou o agente não tiver
+        score, retorna 0 (fica por último na priorização).
+        """
+        try:
+            return self.reputation.get_weight_sync(agent_id)
+        except Exception:
+            return 0.0
 
     async def _process_agent_decision(
         self, agent_id: str, request: DecisionRequest

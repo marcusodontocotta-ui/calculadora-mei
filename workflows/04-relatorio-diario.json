@@ -1,0 +1,93 @@
+{
+  "name": "Cúpula — Relatório Diário",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 18 * * *" }]
+        }
+      },
+      "id": "cron-daily",
+      "name": "Todo dia 18h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://cupula-api:8080/api/v1/report",
+        "options": { "timeout": 30000 }
+      },
+      "id": "get-report",
+      "name": "Gerar Relatório",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://cupula-api:8080/api/v1/meta/analyze",
+        "options": { "timeout": 30000 }
+      },
+      "id": "get-meta",
+      "name": "Meta Análise",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 500]
+    },
+    {
+      "parameters": {
+        "channel": "#cupula-reports",
+        "text": "📊 *Relatório Diário da Cúpula*\n\n*Sistema:*\n• Status: {{ $json.system.status }}\n• Agentes: {{ $json.system.agents_registered }}\n• Uptime: {{ $json.system.uptime }}\n\n*Jurídico:*\n• Total de análises: {{ $json.legal_department.total_analyses }}\n• Vereditos: {{ JSON.stringify($json.legal_department.verdicts) }}\n\n*Decisões recentes:* {{ $json.decision_history.length }}",
+        "otherOptions": {}
+      },
+      "id": "slack-report",
+      "name": "Enviar Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [800, 300],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.email.com/send",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"admin@empresa.com\",\n  \"subject\": \"Cúpula - Relatório Diário\",\n  \"body\": {{ JSON.stringify($json) }}\n}",
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Enviar Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [800, 500],
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Todo dia 18h": {
+      "main": [
+        [
+          { "node": "Gerar Relatório", "type": "main", "index": 0 },
+          { "node": "Meta Análise", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Gerar Relatório": {
+      "main": [
+        [{ "node": "Enviar Slack", "type": "main", "index": 0 }]
+      ]
+    },
+    "Meta Análise": {
+      "main": [
+        [{ "node": "Enviar Email", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": [{ "name": "cupula" }]
+}

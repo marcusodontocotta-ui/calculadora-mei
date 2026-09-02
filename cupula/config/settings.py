@@ -55,6 +55,12 @@ class Settings:
     # Persistência durável de decisões/pareceres (M4) — diretório versionável.
     DECISIONS_DIR: Path = BASE_DIR / "decisions"
 
+    # Seleção de agentes (L3): roles priorizadas e limite de agentes por
+    # decisão quando não há `required_roles` no request. A priorização torna
+    # a escolha determinística (roles críticas primeiro, depois reputação).
+    CUPULA_CRITICAL_ROLES: str = "sentinel,apolo"
+    CUPULA_MAX_AGENTS_PER_DECISION: int = 10
+
     MAX_AGENTS: int = 10000
     AGENT_HEARTBEAT_INTERVAL: int = 30
     AGENT_TIMEOUT: int = 90
@@ -84,4 +90,6 @@ def get_settings() -> Settings:
         RATE_LIMIT_MAX_REQUESTS=_env_int("RATE_LIMIT_MAX_REQUESTS", 60),
         RATE_LIMIT_WINDOW_SECONDS=_env_int("RATE_LIMIT_WINDOW_SECONDS", 60),
         DECISIONS_DIR=Path(_env("CUPULA_DECISIONS_DIR", str(_BASE_DIR / "decisions"))),
+        CUPULA_CRITICAL_ROLES=_env("CUPULA_CRITICAL_ROLES", "sentinel,apolo"),
+        CUPULA_MAX_AGENTS_PER_DECISION=_env_int("CUPULA_MAX_AGENTS_PER_DECISION", 10),
     )
