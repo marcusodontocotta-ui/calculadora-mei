@@ -43,7 +43,17 @@ class Settings:
     REDIS_URL: str = "redis://localhost:6379"
     REDIS_STREAM_MAX_LEN: int = 10000
 
-    DATABASE_URL: str = "postgresql://cupula:cupula_secure@localhost:5432/cupula_db"
+    # Banco de dados (não utilizado de forma obrigatória neste release). Sem
+    # credencial embutida por padrão: a senha REAL deve vir de env DATABASE_URL.
+    # Em produção, defina a env var completa (ex.: postgresql://user:senha@host:5432/db).
+    DATABASE_URL: str = "postgresql://cupula@localhost:5432/cupula_db"
+
+    # Rate limiting (M3) — limites default por janela deslizante em memória.
+    RATE_LIMIT_MAX_REQUESTS: int = 60
+    RATE_LIMIT_WINDOW_SECONDS: int = 60
+
+    # Persistência durável de decisões/pareceres (M4) — diretório versionável.
+    DECISIONS_DIR: Path = BASE_DIR / "decisions"
 
     MAX_AGENTS: int = 10000
     AGENT_HEARTBEAT_INTERVAL: int = 30
@@ -54,13 +64,15 @@ class Settings:
     def __post_init__(self):
         self.LOGS_DIR.mkdir(exist_ok=True)
         self.SANDBOX_DIR.mkdir(exist_ok=True)
+        self.DECISIONS_DIR.mkdir(exist_ok=True)
 
 
 @lru_cache
 def get_settings() -> Settings:
+    _BASE_DIR = Path(__file__).resolve().parent.parent.parent
     return Settings(
         REDIS_URL=_env("REDIS_URL", "redis://localhost:6379"),
-        DATABASE_URL=_env("DATABASE_URL", "postgresql://cupula:cupula_secure@localhost:5432/cupula_db"),
+        DATABASE_URL=_env("DATABASE_URL", "postgresql://cupula@localhost:5432/cupula_db"),
         API_HOST=_env("API_HOST", "0.0.0.0"),
         API_PORT=_env_int("API_PORT", 8080),
         REDIS_STREAM_MAX_LEN=_env_int("REDIS_STREAM_MAX_LEN", 10000),
@@ -69,4 +81,7 @@ def get_settings() -> Settings:
         CUPULA_API_KEY=_env("CUPULA_API_KEY", ""),
         REDIS_CONSUMER_GROUP=_env("REDIS_CONSUMER_GROUP", "cupula-worker-group"),
         REDIS_CONSUMER_NAME=_env("REDIS_CONSUMER_NAME", "cupula-worker-1"),
+        RATE_LIMIT_MAX_REQUESTS=_env_int("RATE_LIMIT_MAX_REQUESTS", 60),
+        RATE_LIMIT_WINDOW_SECONDS=_env_int("RATE_LIMIT_WINDOW_SECONDS", 60),
+        DECISIONS_DIR=Path(_env("CUPULA_DECISIONS_DIR", str(_BASE_DIR / "decisions"))),
     )

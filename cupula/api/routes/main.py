@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from cupula.api.schemas import (
     DecisionRequestDTO,
     LegalAnalysisRequestDTO,
@@ -14,6 +14,7 @@ from cupula.api.schemas import (
     WebhookRequestDTO,
 )
 from cupula.core.logger import get_logger
+from cupula.api.ratelimit import require_rate_limit
 
 logger = get_logger("api.routes")
 router = APIRouter()
@@ -54,7 +55,7 @@ async def _process_webhook(cupula, trigger: str, payload: dict) -> dict:
     return {"status": "stored", "message": "Webhook genérico armazenado"}
 
 
-@router.post("/decide")
+@router.post("/decide", dependencies=[Depends(require_rate_limit)])
 async def decide(request: DecisionRequestDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -72,7 +73,7 @@ async def decide(request: DecisionRequestDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/legal/analyze")
+@router.post("/legal/analyze", dependencies=[Depends(require_rate_limit)])
 async def legal_analyze(request: LegalAnalysisRequestDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -130,6 +131,9 @@ async def legal_stats(req: Request):
 
 
 # ── AI Capability Endpoints ──────────────────────────────────────────────────
+# Todos os endpoints caros (chamadas a provedores de IA) são rate-limited (M3)
+# para evitar abuso de custo. O GET /ai/capabilities (ler estatísticas) é barato
+# e permanece fora do limite, mas ainda exige a API key (auth global).
 
 
 @router.get("/ai/capabilities")
@@ -138,7 +142,7 @@ async def ai_capabilities(req: Request):
     return await cupula.ai_capabilities_list()
 
 
-@router.post("/ai/code/generate")
+@router.post("/ai/code/generate", dependencies=[Depends(require_rate_limit)])
 async def ai_code_generate(request: CodeGenerateDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -156,7 +160,7 @@ async def ai_code_generate(request: CodeGenerateDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ai/code/review")
+@router.post("/ai/code/review", dependencies=[Depends(require_rate_limit)])
 async def ai_code_review(request: CodeReviewDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -168,7 +172,7 @@ async def ai_code_review(request: CodeReviewDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ai/code/debug")
+@router.post("/ai/code/debug", dependencies=[Depends(require_rate_limit)])
 async def ai_code_debug(request: CodeDebugDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -182,7 +186,7 @@ async def ai_code_debug(request: CodeDebugDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ai/image/generate")
+@router.post("/ai/image/generate", dependencies=[Depends(require_rate_limit)])
 async def ai_image_generate(request: ImageGenerateDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -200,7 +204,7 @@ async def ai_image_generate(request: ImageGenerateDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ai/copy/create")
+@router.post("/ai/copy/create", dependencies=[Depends(require_rate_limit)])
 async def ai_copy_create(request: CopyDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -214,7 +218,7 @@ async def ai_copy_create(request: CopyDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ai/brainstorm")
+@router.post("/ai/brainstorm", dependencies=[Depends(require_rate_limit)])
 async def ai_brainstorm(request: BrainstormDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -228,7 +232,7 @@ async def ai_brainstorm(request: BrainstormDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ai/vision/screenshot")
+@router.post("/ai/vision/screenshot", dependencies=[Depends(require_rate_limit)])
 async def ai_vision_screenshot(request: VisionScreenshotDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -242,7 +246,7 @@ async def ai_vision_screenshot(request: VisionScreenshotDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ai/vision/ocr")
+@router.post("/ai/vision/ocr", dependencies=[Depends(require_rate_limit)])
 async def ai_vision_ocr(request: VisionOCRequestDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -254,7 +258,7 @@ async def ai_vision_ocr(request: VisionOCRequestDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/ai/vision/compare")
+@router.post("/ai/vision/compare", dependencies=[Depends(require_rate_limit)])
 async def ai_vision_compare(request: VisionCompareDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -268,10 +272,12 @@ async def ai_vision_compare(request: VisionCompareDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── Webhook Endpoints ──────────────────────────────────────────────────────
+# ── Webhook Endpoints ────────────────────────────────────────────────────
+# Webhooks também são rate-limited (M3): são pontos de entrada de decisões/
+# análises jurídicas que podem disparar custos de provedor.
 
 
-@router.post("/webhook")
+@router.post("/webhook", dependencies=[Depends(require_rate_limit)])
 async def webhook_generic(request: WebhookRequestDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -281,7 +287,7 @@ async def webhook_generic(request: WebhookRequestDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/webhook/decision")
+@router.post("/webhook/decision", dependencies=[Depends(require_rate_limit)])
 async def webhook_decision(request: WebhookRequestDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -291,7 +297,7 @@ async def webhook_decision(request: WebhookRequestDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/webhook/legal")
+@router.post("/webhook/legal", dependencies=[Depends(require_rate_limit)])
 async def webhook_legal(request: WebhookRequestDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -301,7 +307,7 @@ async def webhook_legal(request: WebhookRequestDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/webhook/n8n")
+@router.post("/webhook/n8n", dependencies=[Depends(require_rate_limit)])
 async def webhook_n8n(request: WebhookRequestDTO, req: Request):
     cupula = req.app.state.cupula
     try:
@@ -311,7 +317,7 @@ async def webhook_n8n(request: WebhookRequestDTO, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/webhook/status")
+@router.post("/webhook/status", dependencies=[Depends(require_rate_limit)])
 async def webhook_status(request: WebhookRequestDTO, req: Request):
     cupula = req.app.state.cupula
     try:

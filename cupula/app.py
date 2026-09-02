@@ -7,6 +7,7 @@ from cupula.config.settings import get_settings
 from cupula.core.logger import get_logger
 from cupula.core.message import DecisionRequest
 from cupula.core.orchestrator import Orchestrator
+from cupula.core.persist import persist_decision
 from cupula.legal_gateway.gateway import LegalGateway
 from cupula.legal_gateway.models import LegalRequest
 from cupula.ai_gateway.gateway import AIGateway
@@ -124,21 +125,21 @@ class CupulaApp:
 
         decision_result = await self.orchestrator.submit_decision(request)
 
+        full_text = f"{title} {description}"
+        domains = self._infer_domains(full_text)
+
         legal_result = None
-        if auto_legal:
-            full_text = f"{title} {description}"
-            domains = self._infer_domains(full_text)
-            if domains:
-                try:
-                    legal_result = await self.legal_analysis(
-                        titulo=title,
-                        descricao=description,
-                        dominios=domains,
-                        acao_proposta=description[:500],
-                    )
-                except Exception as e:
-                    logger.error(f"Erro na análise legal automática: {e}")
-                    legal_result = {"error": str(e)}
+        if auto_legal and domains:
+            try:
+                legal_result = await self.legal_analysis(
+                    titulo=title,
+                    descricao=description,
+                    dominios=domains,
+                    acao_proposta=description[:500],
+                )
+            except Exception as e:
+                logger.error(f"Erro na análise legal automática: {e}")
+                legal_result = {"error": str(e)}
 
         elapsed = (time.time() - start) * 1000
 
@@ -148,11 +149,14 @@ class CupulaApp:
             "elapsed_ms": elapsed,
         }
 
-        self._decision_history.append({
+        record = {
             "request_id": request.id,
             "title": title,
+            "description": description,
+            "domains": domains,
             "verdict": decision_result.get("verdict", "UNKNOWN"),
             "confidence": decision_result.get("confidence", 0),
+            "decision_result": decision_result,
             "legal_verdict": (
                 legal_result.get("opinion", {}).get("veredito", "N/A")
                 if legal_result and "opinion" in legal_result
@@ -160,7 +164,10 @@ class CupulaApp:
             ),
             "timestamp": time.time(),
             "elapsed_ms": elapsed,
-        })
+        }
+        persist_decision(record)
+
+        self._decision_history.append(record)
 
         if len(self._decision_history) > 1000:
             self._decision_history = self._decision_history[-500:]

@@ -19,7 +19,9 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-cupula_change_me}
+      # Senha obrigatória via env. Sem default fraco: o compose falha no arranque
+      # se REDIS_PASSWORD não estiver definida em .env (nunca commitar a real).
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD é obrigatória (defina em .env)}
     volumes:
       - redis_data:/data
     networks:
@@ -39,7 +41,9 @@ services:
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-cupula2024}
+      # Sem senha fraca por default: exige env N8N_PASSWORD forte (fail no arranque
+      # se ausente). Gere com: python -c "import secrets; print(secrets.token_urlsafe(24))"
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:?N8N_PASSWORD é obrigatória (defina uma senha forte em .env)}
       - N8N_HOST=localhost
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
@@ -63,7 +67,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-cupula_change_me}@redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - API_HOST=0.0.0.0
       - API_PORT=8080
       - PYTHONUNBUFFERED=1
@@ -71,6 +75,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./sandbox:/app/sandbox
+      - ./decisions:/app/decisions
     networks:
       - cupula-network
     depends_on:
@@ -83,7 +88,7 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     environment:
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-cupula_change_me}@redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - PYTHONUNBUFFERED=1
       # Consumidor único por réplica para evitar colisão no Redis Streams (P1c).
       - REDIS_CONSUMER_GROUP=${REDIS_CONSUMER_GROUP:-cupula-worker-group}
